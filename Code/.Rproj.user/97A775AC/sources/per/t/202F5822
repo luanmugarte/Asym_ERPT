@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1608293680221.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "2|10|38|0|\n39|12|87|0|\n88|10|135|0|\n136|16|184|0|\n185|16|235|0|\n236|9|276|0|\n277|58|288|0|\n289|13|327|0|\n328|17|359|0|\n360|11|392|0|\n393|16|439|0|\n488|29|489|0|\n490|15|524|0|\n525|17|572|0|\n573|15|619|0|\n620|21|667|0|\n668|21|716|0|\n717|9|756|0|\n771|18|807|0|\n808|22|838|0|\n839|16|869|0|\n870|21|914|0|\n917|31|934|0|\n",
+    "hash" : "2968495679",
+    "id" : "202F5822",
+    "lastKnownWriteTime" : 1608295577,
+    "last_content_update" : 1608295577692,
+    "path" : "~/Dissertacao/ScriptsR/Testes-Modelo2.R",
+    "project_path" : "Testes-Modelo2.R",
+    "properties" : {
+        "cursorPosition" : "769,40",
+        "scrollLine" : "479"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

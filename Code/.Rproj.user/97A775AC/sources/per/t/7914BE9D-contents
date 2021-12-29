@@ -1,0 +1,266 @@
+#### Carregando os dados ####
+
+# IPCA
+ipca <- read.csv("Dados/ipcacompleto.csv")
+ipcaac <- read.csv("Dados/ipcaacumulado.csv")
+
+# Cambio 
+cambiocompleto <- read.csv("Dados/cambiocompleto.csv")
+
+# Capacidade
+capacidade <- read.csv("Dados/capacidade.csv")
+
+# Commodities
+comm <- read.csv("Dados/comm.csv")
+
+# Juros
+selic <- read.csv('Dados/selic.csv')
+
+# Desemprego (Retropolada)
+desemprego <- read.csv('Dados/PNADc Retropolada (Carvalho, 2016) - Taxa de Desemprego.csv', header = F, dec = ",")
+
+?read.csv
+#### Manipulando as séries ####
+
+# Ajustando nomes das colunas
+colnames(capacidade) <- cbind('index','data','valores')
+
+# Vendo as séries
+ipca
+cambiocompleto
+comm
+capacidade
+selic
+desemprego
+
+# Convertendo em objetos ts - Período: 01/2000 - 02/2020
+# Obs: A série de câmbio começa em 1999 para o cálculo de séries adicionais (EWMA e SMA).
+ipca <- ts((ipca[13:nrow(ipca),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+ipcaac <- ts((ipcaac[14:nrow(ipcaac),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+cambio <- ts((cambiocompleto[1:nrow(cambiocompleto),2]), start = c(1999,1), end = c(2020,2), frequency = 12)
+comm <- ts((comm[13:nrow(comm),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+capacidade <- ts((capacidade[97:nrow(capacidade),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+selic <- ts((selic[13:nrow(selic),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+desemprego <- ts(desemprego[25:nrow(desemprego),2], start = c(2000,1), end = c(2020,2), frequency = 12)
+
+
+# Vendo as séries
+ipca
+cambio
+comm
+capacidade
+selic
+desemprego
+
+# Verificando numero de obs
+length(ipca)
+length(cambio)
+length(comm)
+length(capacidade)
+length(selic)
+length(desemprego)
+
+# Plotando as śeries
+par(mfrow=c(1,1))
+plot(ipca)
+plot(comm)
+plot(capacidade)
+plot(cambio)
+plot(selic)
+
+
+#### Dessazonalizando as séries ####
+
+# IPCA
+ipca
+monthplot(ipca)
+seas_ipca <- seas(x = ipca)
+summary(seas_ipca)
+
+seasonal::qs(seas_ipca)
+
+ipcadessaz <- series(seas_ipca, "s11")
+plot(ipca)
+plot(seas_ipca)
+ipca <- ipcadessaz
+
+
+# COMM
+
+monthplot(comm)
+seas_comm <- seas(x = comm)
+summary(seas_comm)
+
+seasonal::qs(seas_comm)
+
+# desemprego
+desemprego
+monthplot(desemprego)
+seas_desemprego <- seas(x = desemprego)
+summary(seas_desemprego)
+
+seasonal::qs(seas_desemprego)
+
+desempregodessaz <- series(seas_desemprego, "s11")
+plot(desemprego)
+plot(seas_desemprego)
+desemprego <- desempregodessaz
+
+
+
+
+#### Criando séries adicionais ####
+
+# Volatilidade cambial - MSD e EWMA ####
+cambio
+
+# Retorno da taxa de câmbio (a série passa a começar em 02/1999)
+cambio.rets = CalculateReturns(cambio, "discrete")
+cambio.rets
+
+# Descartando primeira observação (NA)
+cambio.rets <- cambio.rets[-1]
+cambio.rets2 <- cambio.rets ^ 2
+  
+# Verificando o gráfico
+par(mfrow=c(1,1))
+plot.ts(cambio.rets)
+plot.ts(cambio.rets2)
+
+# MSD (Moving Standard Deviation) ####
+
+# Tamanho da janela
+r = 3 
+
+# Calculando SMA
+cambio.MSD <- SMA(cambio.rets2,r)
+cambio.MSD
+length(cambio.MSD)
+cambio.MSD <- cambio.MSD[-1:-2]
+length(cambio.MSD)
+
+
+# Transformando em objeto xts
+cambio.MSD <- as.xts(ts(cambio.MSD, start = c(1999,(r+2%%12)), frequency = 12))
+
+# Verificando o gráfico
+plot(cambio.MSD)
+
+# EWMA (Exponentially Weighted Moving Average) ####
+
+# Fator de decaimento
+lambda = 0.94
+
+# Cálculo do EWMA
+cambio.rets2 <- as.data.frame(cambio.rets2)
+cambio.EWMA <- covEWMA(cambio.rets2, lambda = lambda)
+cambio.EWMAM <- covEWMA(cambio.rets2, lambda = 0.97)
+
+
+# Transformando em objeto xts
+cambio.EWMA <- as.xts(ts(cambio.EWMA[, ,1], start = c(1999,3), frequency = 12))
+cambio.EWMAM <- as.xts(ts(cambio.EWMAM[, ,1], start = c(1999,3), frequency = 12))
+
+# Verificando o gráfico
+plot(cambio.EWMA)
+
+cambio.rets2
+
+# Comparação MSD e EWMA ####
+par(mfrow=c(3,1))
+plot(cambio.MSD)
+plot(cambio.EWMA)
+plot(cambio.EWMAM)
+
+
+#### Dados não diferenciados sem expectativas (brutos) ####
+
+# Verificando tamanho dos dados (Deve ser igual a 242 obs)
+length(ipca)
+length(cambio)
+length(comm)
+length(capacidade)
+length(selic)
+length(cambio.MSD)
+length(cambio.EWMA)
+length(cambio.EWMAM)
+
+# Ajustando a data de início da séries de câmbio para 01/2000
+
+# Cambio
+cambio
+cambio <- as.xts(ts(cambio[13:length(cambio)], start = c(2000,1),  end = c(2020,2), frequency = 12))
+
+# Cambio - MSD
+cambio.MSD[12]
+cambio.MSD <- as.xts(ts(cambio.MSD[12:length(cambio.MSD)], start = c(2000,1), end = c(2020,2),frequency = 12))
+
+# Cambio - EWMA's
+cambio.EWMA[11]
+cambio.EWMAM[11]
+
+cambio.EWMA <- as.xts(ts(sqrt(cambio.EWMA[11:length(cambio.EWMA)]), start = c(2000,1), end = c(2020,2), frequency = 12))
+cambio.EWMAM <- as.xts(ts(sqrt(cambio.EWMAM[11:length(cambio.EWMAM)]), start = c(2000,1),  end = c(2020,2), frequency = 12))
+
+
+# Verificando novamente tamanho dos dados (Deve ser igual a 242 obs)
+length(cambio)
+length(cambio.MSD)
+length(cambio.EWMA)
+length(cambio.EWMAM)
+
+par(mfrow=c(3,1))
+plot(cambio.MSD)
+plot(cambio.EWMA)
+plot(cambio.EWMAM)
+
+# Exportando os dados
+
+# Coluna de data
+
+date = seq(from = as.Date("2000-01-01"), to = as.Date("2020-02-01"), by = 'month')
+
+length(date)
+
+
+dadosbrutos <- tibble(date,ipca, capacidade,desemprego, comm, selic, cambio[,1], cambio.MSD[,1], cambio.EWMA[,1],ipcaac)
+colnames(dadosbrutos) <- c("date","ipca.1", "capacidade.1","desemprego.1", "comm.1", "selic.1", "cambio.1","cambio.MSD.1", "cambio.EWMA.1","ipcaac.1")
+
+write.csv(dadosbrutos, file = 'Dados/dados-modelo1.csv', row.names = F)
+
+
+#### Dados trimestrais
+
+# Transformando em objetos xts
+ipca <- as.xts(ipca)
+ipcaac <- as.xts(ipcaac)
+capacidade <- as.xts(capacidade)
+cambio <- as.xts(cambio)
+comm <- as.xts(comm)
+selic <- as.xts(selic)
+cambio.MSD <- as.xts(cambio.MSD)
+cambio.EWMA <- as.xts(cambio.EWMA)
+cambio.EWMAM <- as.xts(cambio.EWMAM)
+desemprego <- as.xts(desemprego)
+date <- as.xts(date)
+
+
+# Transformando em dados trimestrais
+ipca.trim <- apply.quarterly(ipca, mean)
+ipcaac.trim <- apply.quarterly(ipcaac, mean)
+cambio.trim <- apply.quarterly(cambio, mean)
+comm.trim <- apply.quarterly(comm, mean)
+capacidade.trim <- apply.quarterly(capacidade, mean)
+selic.trim <- apply.quarterly(selic, mean)
+cambio.MSD.trim <- apply.quarterly(cambio.MSD, mean)
+cambio.EWMA.trim <- apply.quarterly(cambio.EWMA, mean)
+cambio.EWMAM.trim <- apply.quarterly(cambio.EWMAM, mean)
+date.trim <- seq(from = as.Date("2000-03-01"), to = as.Date("2020-03-01"), by = 'quarter')
+desemprego.trim <- apply.quarterly(desemprego, mean)
+
+# Exportando os dados
+
+dadosbrutos.trim <- tibble(date.trim,ipca.trim, capacidade.trim, desemprego.trim, comm.trim, selic.trim, cambio.trim[,1], cambio.MSD.trim[,1], cambio.EWMA.trim[,1], ipcaac.trim)
+colnames(dadosbrutos.trim) <- c("date","ipca.trim.1", "capacidade.trim.1", "desemprego.trim.1", "comm.trim.1", "selic.trim.1", "cambio.trim.1","cambio.MSD.trim.1", "cambio.EWMA.trim.1", "ipcaac.trim.1")
+
+write.csv(dadosbrutos.trim, file = 'Dados/dados-modelo1(trim).csv', row.names = F)

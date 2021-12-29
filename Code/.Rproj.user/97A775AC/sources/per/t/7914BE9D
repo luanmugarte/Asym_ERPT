@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1608293094941.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "820613335",
+    "id" : "7914BE9D",
+    "lastKnownWriteTime" : 1608295763,
+    "last_content_update" : 1608295763710,
+    "path" : "~/Dissertacao/ScriptsR/Dados-Modelo1.R",
+    "project_path" : "Dados-Modelo1.R",
+    "properties" : {
+        "cursorPosition" : "38,35",
+        "scrollLine" : "12"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

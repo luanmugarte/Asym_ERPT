@@ -1,0 +1,952 @@
+# Testes de Estacionariedade ####
+
+#### IPCA ####
+
+plot(ipca)
+acf(ipca)
+pacf(ipca)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+ipca.df1 <- ur.df(ipca, type = 'trend', lags=12, selectlags = 'AIC')
+summary(ipca.df1)
+plot(ipca.df1)
+
+# ipca é estacionário #
+
+# Teste KPSS #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+ipca.kpss1 <- ur.kpss(ipca, type = 'tau', lags = 'long')
+summary(ipca.kpss1)
+plot(ipca.kpss1)
+
+ipca.kpss2 <- ur.kpss(ipca, type = 'mu', lags = 'long')
+summary(ipca.kpss2)
+plot(ipca.kpss2)
+# Estacionário #
+
+# Teste PP #
+ipca.pp1 <- ur.pp(ipca, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(ipca.pp1)
+plot(ipca.pp1)
+
+
+### ipca é estacionário ###
+
+
+#### CAMBIO ####
+
+plot(cambio)
+acf(cambio)
+pacf(cambio)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+cambio.df1 <- ur.df(cambio, type = 'trend', lags=12, selectlags = 'AIC')
+summary(cambio.df1)
+plot(cambio.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+cambio.df2 <- ur.df(cambio, type = 'drift', lags=12, selectlags = 'AIC')
+summary(cambio.df2)
+plot(cambio.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+cambio.df3 <- ur.df(cambio, type = 'none', lags=12, selectlags = 'AIC')
+summary(cambio.df3)
+plot(cambio.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+cambio.kpss1 <- ur.kpss(cambio, type = 'tau', lags = 'long')
+summary(cambio.kpss1)
+plot(cambio.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+cambio.kpss2 <- ur.kpss(cambio, type = 'mu', lags = 'long')
+summary(cambio.kpss2)
+plot(cambio.kpss2)
+
+# Estacionário #
+
+# Teste PP %
+cambio.pp1 <- ur.pp(cambio, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(cambio.pp1)
+plot(cambio.pp1)
+
+cambio.pp2 <- ur.pp(cambio, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(cambio.pp2)
+plot(cambio.pp2)
+### Câmbio é não estacionário ###
+
+#### Comm ####
+
+plot(comm)
+acf(comm)
+pacf(comm)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+comm.df1 <- ur.df(comm, type = 'trend', lags=12, selectlags = 'AIC')
+summary(comm.df1)
+plot(comm.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+comm.df2 <- ur.df(comm, type = 'drift', lags=12, selectlags = 'AIC')
+summary(comm.df2)
+plot(comm.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+comm.df3 <- ur.df(comm, type = 'none', lags=12, selectlags = 'AIC')
+summary(comm.df3)
+plot(comm.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+comm.kpss1 <- ur.kpss(comm, type = 'tau', lags = 'long')
+summary(comm.kpss1)
+plot(comm.kpss1)
+
+# Rejeita hipótese nula. Não Estacionário #
+
+comm.kpss2 <- ur.kpss(comm, type = 'mu', lags = 'long')
+summary(comm.kpss2)
+plot(comm.kpss2)
+
+# Estacionário #
+
+# Teste PP %
+comm.pp1 <- ur.pp(comm, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(comm.pp1)
+plot(comm.pp1)
+
+# Não Estacionário
+
+### Comm é não estacionário ###
+
+#### Capacidade ####
+
+plot(capacidade)
+acf(capacidade)
+pacf(capacidade)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+capacidade.df1 <- ur.df(capacidade, type = 'trend', lags=12, selectlags = 'AIC')
+summary(capacidade.df1)
+plot(capacidade.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+capacidade.df2 <- ur.df(capacidade, type = 'drift', lags=12, selectlags = 'AIC')
+summary(capacidade.df2)
+plot(capacidade.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+capacidade.df3 <- ur.df(capacidade, type = 'none', lags=12, selectlags = 'AIC')
+summary(capacidade.df3)
+plot(capacidade.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+capacidade.kpss1 <- ur.kpss(capacidade, type = 'tau', lags = 'long')
+summary(capacidade.kpss1)
+plot(capacidade.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+capacidade.kpss2 <- ur.kpss(capacidade, type = 'mu', lags = 'long')
+summary(capacidade.kpss2)
+plot(capacidade.kpss2)
+
+# Não estacionário #
+
+# Teste PP %
+capacidade.pp1 <- ur.pp(capacidade, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(capacidade.pp1)
+plot(capacidade.pp1)
+
+capacidade.pp2 <- ur.pp(capacidade, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(capacidade.pp2)
+plot(capacidade.pp2)
+### Capacidade é não estacionário ###
+
+#### Desemprego ####
+plot(desemprego)
+acf(desemprego)
+pacf(desemprego)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+desemprego.df1 <- ur.df(desemprego, type = 'trend', lags=12, selectlags = 'AIC')
+summary(desemprego.df1)
+plot(desemprego.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+desemprego.df2 <- ur.df(desemprego, type = 'drift', lags=12, selectlags = 'AIC')
+summary(desemprego.df2)
+plot(desemprego.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+desemprego.df3 <- ur.df(desemprego, type = 'none', lags=12, selectlags = 'AIC')
+summary(desemprego.df3)
+plot(desemprego.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+desemprego.kpss1 <- ur.kpss(desemprego, type = 'tau', lags = 'long')
+summary(desemprego.kpss1)
+plot(desemprego.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+desemprego.kpss2 <- ur.kpss(desemprego, type = 'mu', lags = 'long')
+summary(desemprego.kpss2)
+plot(desemprego.kpss2)
+
+# Não estacionário #
+
+# Teste PP %
+desemprego.pp1 <- ur.pp(desemprego, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(desemprego.pp1)
+plot(desemprego.pp1)
+
+desemprego.pp2 <- ur.pp(desemprego, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(desemprego.pp2)
+plot(desemprego.pp2)
+### desemprego é não estacionário ###
+
+
+#-----------------------------------------# 
+
+#### vol ####
+vol <- cambio.MSD
+plot(vol)
+acf(vol)
+pacf(vol)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+vol.df1 <- ur.df(vol, type = 'trend', lags=12, selectlags = 'AIC')
+summary(vol.df1)
+plot(vol.df1)
+
+
+### Estacionário ###
+
+# Teste KPSS #
+
+vol.kpss1 <- ur.kpss(vol, type = 'tau', lags = 'long')
+summary(vol.kpss1)
+plot(vol.kpss1)
+
+# Rejeita hipótese nula. N Estacionário #
+
+vol.kpss2 <- ur.kpss(vol, type = 'mu', lags = 'long')
+summary(vol.kpss2)
+plot(vol.kpss2)
+ 
+# Estacionário #
+
+# Teste PP %
+vol.pp1 <- ur.pp(vol, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(vol.pp1)
+plot(vol.pp1)
+
+vol.pp2 <- ur.pp(vol, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(vol.pp2)
+plot(vol.pp2)
+### vol é estacionário ###
+
+
+#### Testes de Estacionariedade para séries diferenciadas ####
+
+dcambio <- diff(log(cambio))
+dcapacidade <- diff(log(capacidade))
+dcomm <- diff(log(comm))
+ddesemprego <- diff(log(desemprego))
+
+dcambio <- dcambio[-1]
+dcomm <- dcomm[-1]
+dcapacidade <- dcapacidade[-1]
+ddesemprego <- ddesemprego[-1]
+
+#### DCAMBIO ####
+
+plot(dcambio)
+acf(dcambio)
+pacf(dcambio)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+dcambio.df1 <- ur.df(dcambio, type = 'trend', lags=12, selectlags = 'AIC')
+summary(dcambio.df1)
+plot(dcambio.df1)
+
+# Estacionário #
+
+# Teste KPSS #
+
+dcambio.kpss1 <- ur.kpss(dcambio, type = 'tau', lags = 'long')
+summary(dcambio.kpss1)
+plot(dcambio.kpss1)
+
+# N estacionário #
+
+dcambio.kpss2 <- ur.kpss(dcambio, type = 'mu', lags = 'long')
+summary(dcambio.kpss2)
+plot(dcambio.kpss2)
+
+### Câmbio é estacionário ###
+
+
+dcambio.pp1 <- ur.pp(dcambio, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(dcambio.pp1)
+plot(dcambio.pp1)
+
+dcambio.pp1 <- ur.pp(dcambio, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(dcambio.pp1)
+plot(dcambio.pp1)
+
+
+#### dcapacidade ####
+
+plot(dcapacidade)
+acf(dcapacidade)
+pacf(dcapacidade)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+dcapacidade.df1 <- ur.df(dcapacidade, type = 'trend', lags=12, selectlags = 'AIC')
+summary(dcapacidade.df1)
+plot(dcapacidade.df1)
+
+### Estacionário ###
+
+# Teste KPSS #
+
+dcapacidade.kpss1 <- ur.kpss(dcapacidade, type = 'tau', lags = 'long')
+summary(dcapacidade.kpss1)
+plot(dcapacidade.kpss1)
+
+# N Rejeita hipótese nula. Estacionário #
+
+# Teste PP %
+dcapacidade.pp1 <- ur.pp(dcapacidade, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(dcapacidade.pp1)
+plot(dcapacidade.pp1)
+
+### Rejeita hipótese nula. É estacionário ###
+
+#----------------------------#
+
+#### dcomm ####
+
+plot(dcomm)
+acf(dcomm)
+pacf(dcomm)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+dcomm.df1 <- ur.df(dcomm, type = 'trend', lags=12, selectlags = 'AIC')
+summary(dcomm.df1)
+plot(dcomm.df1)
+
+### Estacionário ###
+
+# Teste KPSS #
+
+dcomm.kpss1 <- ur.kpss(dcomm, type = 'tau', lags = 'long')
+summary(dcomm.kpss1)
+plot(dcomm.kpss1)
+
+# N Rejeita hipótese nula. Estacionário #
+
+# Teste PP %
+dcomm.pp1 <- ur.pp(dcomm, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(dcomm.pp1)
+plot(dcomm.pp1)
+
+### Rejeita hipótese nula. É estacionário ###
+
+#-----------------------------------------#
+
+
+#### Desemprego ####
+plot(ddesemprego)
+acf(ddesemprego)
+pacf(ddesemprego)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+ddesemprego.df1 <- ur.df(ddesemprego, type = 'trend', lags=12, selectlags = 'AIC')
+summary(ddesemprego.df1)
+plot(ddesemprego.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+ddesemprego.df2 <- ur.df(ddesemprego, type = 'drift', lags=12, selectlags = 'AIC')
+summary(ddesemprego.df2)
+plot(ddesemprego.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+ddesemprego.df3 <- ur.df(ddesemprego, type = 'none', lags=12, selectlags = 'AIC')
+summary(ddesemprego.df3)
+plot(ddesemprego.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+ddesemprego.kpss1 <- ur.kpss(ddesemprego, type = 'tau', lags = 'long')
+summary(ddesemprego.kpss1)
+plot(ddesemprego.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+ddesemprego.kpss2 <- ur.kpss(ddesemprego, type = 'mu', lags = 'long')
+summary(ddesemprego.kpss2)
+plot(ddesemprego.kpss2)
+
+# Não estacionário #
+
+# Teste PP %
+ddesemprego.pp1 <- ur.pp(ddesemprego, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(ddesemprego.pp1)
+plot(ddesemprego.pp1)
+
+ddesemprego.pp2 <- ur.pp(ddesemprego, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(ddesemprego.pp2)
+plot(ddesemprego.pp2)
+
+#### Outras séries auxiliares ####
+
+#### Ajustando os dados limpos ####
+
+length(ipca)
+length(dcambio)
+length(dcomm)
+length(dcapacidade)
+length(ddesemprego)
+length(vol)
+
+# Retirando NA's e ajustando tamanho de obs
+
+ipcaac <- diff(log(ipcaac))
+ipcaac <- ipcaac[-1]
+ipca <- ipca[-1]
+vol <- vol[-1]
+
+length(ipca)
+length(dcambio)
+length(dcomm)
+length(dcapacidade)
+length(ddesemprego)
+length(vol)
+
+#### Exportando os dados ####
+
+dadosdiff <- tibble(dcomm,dcambio, dcapacidade,ddesemprego,ipca,ipcaac)
+dadosdiff
+colnames(dadosdiff) <- cbind( 'dcomm','dcambio', 'dcapacidade' ,"ddesemprego",'ipca','ipcaac')
+
+
+##################################################
+
+#### TESTE DE LINEARIDADE ####
+
+# Teste de Linearidade - tsDyn
+# tsDyn::TVAR.LRtest(dadosdiff, lag = 1, trend = T, thDelay = 1, model = 'TAR', mTh = 2, nboot = 1000, plot = T, test = "1vs")
+
+# Teste de Linearidade - tsDyn
+
+
+#######################################################################
+
+####                      DADOS TRIMESTRAIS                        ####
+
+#######################################################################
+
+# Testes de Estacionariedade ####
+
+#### ipca.trim ####
+ipca.trim
+plot(ipca.trim)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+ipca.trim.df1 <- ur.df(ipca.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(ipca.trim.df1)
+plot(ipca.trim.df1)
+
+# ipca.trim é estacionário #
+
+# Teste KPSS #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+ipca.trim.kpss1 <- ur.kpss(ipca.trim, type = 'tau', lags = 'long')
+summary(ipca.trim.kpss1)
+plot(ipca.trim.kpss1)
+
+ipca.trim.kpss2 <- ur.kpss(ipca.trim, type = 'mu', lags = 'long')
+summary(ipca.trim.kpss2)
+plot(ipca.trim.kpss2)
+# Estacionário #
+
+# Teste PP #
+ipca.trim.pp1 <- ur.pp(ipca.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(ipca.trim.pp1)
+plot(ipca.trim.pp1)
+
+
+### ipca.trim é estacionário ###
+
+
+#### cambio.trim ####
+
+plot(cambio.trim)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+cambio.trim.df1 <- ur.df(cambio.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(cambio.trim.df1)
+plot(cambio.trim.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+cambio.trim.df2 <- ur.df(cambio.trim, type = 'drift', lags=12, selectlags = 'AIC')
+summary(cambio.trim.df2)
+plot(cambio.trim.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+cambio.trim.df3 <- ur.df(cambio.trim, type = 'none', lags=12, selectlags = 'AIC')
+summary(cambio.trim.df3)
+plot(cambio.trim.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+cambio.trim.kpss1 <- ur.kpss(cambio.trim, type = 'tau', lags = 'long')
+summary(cambio.trim.kpss1)
+plot(cambio.trim.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+cambio.trim.kpss2 <- ur.kpss(cambio.trim, type = 'mu', lags = 'long')
+summary(cambio.trim.kpss2)
+plot(cambio.trim.kpss2)
+
+# Estacionário #
+
+# Teste PP %
+cambio.trim.pp1 <- ur.pp(cambio.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(cambio.trim.pp1)
+plot(cambio.trim.pp1)
+
+cambio.trim.pp2 <- ur.pp(cambio.trim, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(cambio.trim.pp2)
+plot(cambio.trim.pp2)
+### Câmbio é não estacionário ###
+
+#### comm.trim ####
+
+plot(comm.trim)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+comm.trim.df1 <- ur.df(comm.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(comm.trim.df1)
+plot(comm.trim.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+comm.trim.df2 <- ur.df(comm.trim, type = 'drift', lags=12, selectlags = 'AIC')
+summary(comm.trim.df2)
+plot(comm.trim.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+comm.trim.df3 <- ur.df(comm.trim, type = 'none', lags=12, selectlags = 'AIC')
+summary(comm.trim.df3)
+plot(comm.trim.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+comm.trim.kpss1 <- ur.kpss(comm.trim, type = 'tau', lags = 'long')
+summary(comm.trim.kpss1)
+plot(comm.trim.kpss1)
+
+# Rejeita hipótese nula. Não Estacionário #
+
+comm.trim.kpss2 <- ur.kpss(comm.trim, type = 'mu', lags = 'long')
+summary(comm.trim.kpss2)
+plot(comm.trim.kpss2)
+
+# Estacionário #
+
+# Teste PP %
+comm.trim.pp1 <- ur.pp(comm.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(comm.trim.pp1)
+plot(comm.trim.pp1)
+
+# Não Estacionário
+
+### comm.trim é não estacionário ###
+
+#### capacidade.trim ####
+
+plot(capacidade.trim)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+capacidade.trim.df1 <- ur.df(capacidade.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(capacidade.trim.df1)
+plot(capacidade.trim.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+capacidade.trim.df2 <- ur.df(capacidade.trim, type = 'drift', lags=12, selectlags = 'AIC')
+summary(capacidade.trim.df2)
+plot(capacidade.trim.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+capacidade.trim.df3 <- ur.df(capacidade.trim, type = 'none', lags=12, selectlags = 'AIC')
+summary(capacidade.trim.df3)
+plot(capacidade.trim.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+capacidade.trim.kpss1 <- ur.kpss(capacidade.trim, type = 'tau', lags = 'long')
+summary(capacidade.trim.kpss1)
+plot(capacidade.trim.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+capacidade.trim.kpss2 <- ur.kpss(capacidade.trim, type = 'mu', lags = 'long')
+summary(capacidade.trim.kpss2)
+plot(capacidade.trim.kpss2)
+
+# Não estacionário #
+
+# Teste PP %
+capacidade.trim.pp1 <- ur.pp(capacidade.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(capacidade.trim.pp1)
+plot(capacidade.trim.pp1)
+
+capacidade.trim.pp2 <- ur.pp(capacidade.trim, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(capacidade.trim.pp2)
+plot(capacidade.trim.pp2)
+### capacidade.trim é não estacionário ###
+
+#### desemprego.trim ####
+plot(desemprego.trim)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+desemprego.trim.df1 <- ur.df(desemprego.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(desemprego.trim.df1)
+plot(desemprego.trim.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+desemprego.trim.df2 <- ur.df(desemprego.trim, type = 'drift', lags=12, selectlags = 'AIC')
+summary(desemprego.trim.df2)
+plot(desemprego.trim.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+desemprego.trim.df3 <- ur.df(desemprego.trim, type = 'none', lags=12, selectlags = 'AIC')
+summary(desemprego.trim.df3)
+plot(desemprego.trim.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+desemprego.trim.kpss1 <- ur.kpss(desemprego.trim, type = 'tau', lags = 'long')
+summary(desemprego.trim.kpss1)
+plot(desemprego.trim.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+desemprego.trim.kpss2 <- ur.kpss(desemprego.trim, type = 'mu', lags = 'long')
+summary(desemprego.trim.kpss2)
+plot(desemprego.trim.kpss2)
+
+# Não estacionário #
+
+# Teste PP %
+desemprego.trim.pp1 <- ur.pp(desemprego.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(desemprego.trim.pp1)
+plot(desemprego.trim.pp1)
+
+desemprego.trim.pp2 <- ur.pp(desemprego.trim, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(desemprego.trim.pp2)
+plot(desemprego.trim.pp2)
+### desemprego.trim é não estacionário ###
+
+
+#-----------------------------------------# 
+
+#### vol ####
+vol <- cambio.MSD.trim
+plot(vol)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+vol.df1 <- ur.df(vol, type = 'trend', lags=12, selectlags = 'AIC')
+summary(vol.df1)
+plot(vol.df1)
+
+
+### Estacionário ###
+
+# Teste KPSS #
+
+vol.kpss1 <- ur.kpss(vol, type = 'tau', lags = 'long')
+summary(vol.kpss1)
+plot(vol.kpss1)
+
+# Rejeita hipótese nula. N Estacionário #
+
+vol.kpss2 <- ur.kpss(vol, type = 'mu', lags = 'long')
+summary(vol.kpss2)
+plot(vol.kpss2)
+
+# Estacionário #
+
+# Teste PP %
+vol.pp1 <- ur.pp(vol, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(vol.pp1)
+plot(vol.pp1)
+
+vol.pp2 <- ur.pp(vol, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(vol.pp2)
+plot(vol.pp2)
+### vol é estacionário ###
+
+
+#### Testes de Estacionariedade para séries diferenciadas ####
+
+dcambio.trim <- diff(log(cambio.trim))
+dcapacidade.trim <- diff(log(capacidade.trim))
+dcomm.trim <- diff(log(comm.trim))
+ddesemprego.trim <- diff(log(desemprego.trim))
+ipcaac.trim <- diff(log(ipcaac.trim))
+
+
+dcambio.trim <- dcambio.trim[-1]
+dcomm.trim <- dcomm.trim[-1]
+dcapacidade.trim <- dcapacidade.trim[-1]
+ddesemprego.trim <- ddesemprego.trim[-1]
+ipcaac.trim <- ipcaac.trim[-1]
+#### Dcambio.trim ####
+
+plot(dcambio.trim)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+dcambio.trim.df1 <- ur.df(dcambio.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(dcambio.trim.df1)
+plot(dcambio.trim.df1)
+
+# Estacionário #
+
+# Teste KPSS #
+
+dcambio.trim.kpss1 <- ur.kpss(dcambio.trim, type = 'tau', lags = 'long')
+summary(dcambio.trim.kpss1)
+plot(dcambio.trim.kpss1)
+
+# N estacionário #
+
+dcambio.trim.kpss2 <- ur.kpss(dcambio.trim, type = 'mu', lags = 'long')
+summary(dcambio.trim.kpss2)
+plot(dcambio.trim.kpss2)
+
+### Câmbio é estacionário ###
+
+
+dcambio.trim.pp1 <- ur.pp(dcambio.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(dcambio.trim.pp1)
+plot(dcambio.trim.pp1)
+
+dcambio.trim.pp1 <- ur.pp(dcambio.trim, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(dcambio.trim.pp1)
+plot(dcambio.trim.pp1)
+
+
+#### dcapacidade.trim ####
+
+plot(dcapacidade.trim)
+
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+dcapacidade.trim.df1 <- ur.df(dcapacidade.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(dcapacidade.trim.df1)
+plot(dcapacidade.trim.df1)
+
+### Estacionário ###
+
+# Teste KPSS #
+
+dcapacidade.trim.kpss1 <- ur.kpss(dcapacidade.trim, type = 'tau', lags = 'long')
+summary(dcapacidade.trim.kpss1)
+plot(dcapacidade.trim.kpss1)
+
+# N Rejeita hipótese nula. Estacionário #
+
+# Teste PP %
+dcapacidade.trim.pp1 <- ur.pp(dcapacidade.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(dcapacidade.trim.pp1)
+plot(dcapacidade.trim.pp1)
+
+### Rejeita hipótese nula. É estacionário ###
+
+#----------------------------#
+
+#### dcomm.trim ####
+
+plot(dcomm.trim)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+dcomm.trim.df1 <- ur.df(dcomm.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(dcomm.trim.df1)
+plot(dcomm.trim.df1)
+
+### Estacionário ###
+
+# Teste KPSS #
+
+dcomm.trim.kpss1 <- ur.kpss(dcomm.trim, type = 'tau', lags = 'long')
+summary(dcomm.trim.kpss1)
+plot(dcomm.trim.kpss1)
+
+# N Rejeita hipótese nula. Estacionário #
+
+# Teste PP %
+dcomm.trim.pp1 <- ur.pp(dcomm.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(dcomm.trim.pp1)
+plot(dcomm.trim.pp1)
+
+### Rejeita hipótese nula. É estacionário ###
+
+#-----------------------------------------#
+
+
+#### desemprego.trim ####
+plot(ddesemprego.trim)
+
+# Teste ADF #
+
+# Primeira Etapa (Testando o modelo com tendência e drift)
+ddesemprego.trim.df1 <- ur.df(ddesemprego.trim, type = 'trend', lags=12, selectlags = 'AIC')
+summary(ddesemprego.trim.df1)
+plot(ddesemprego.trim.df1)
+
+# Segunda etapa (Testando o modelo com drift)
+ddesemprego.trim.df2 <- ur.df(ddesemprego.trim, type = 'drift', lags=12, selectlags = 'AIC')
+summary(ddesemprego.trim.df2)
+plot(ddesemprego.trim.df2)
+
+# Terceira etapa (Testando o modelo RW puro)
+ddesemprego.trim.df3 <- ur.df(ddesemprego.trim, type = 'none', lags=12, selectlags = 'AIC')
+summary(ddesemprego.trim.df3)
+plot(ddesemprego.trim.df3)
+
+### Não Estacionário ###
+
+# Teste KPSS #
+
+ddesemprego.trim.kpss1 <- ur.kpss(ddesemprego.trim, type = 'tau', lags = 'long')
+summary(ddesemprego.trim.kpss1)
+plot(ddesemprego.trim.kpss1)
+
+# Rejeita hipótese nula. Não estacionário #
+
+ddesemprego.trim.kpss2 <- ur.kpss(ddesemprego.trim, type = 'mu', lags = 'long')
+summary(ddesemprego.trim.kpss2)
+plot(ddesemprego.trim.kpss2)
+
+# Não estacionário #
+
+# Teste PP %
+ddesemprego.trim.pp1 <- ur.pp(ddesemprego.trim, type = 'Z-tau', model = c("constant","trend"), lags = 'long')
+summary(ddesemprego.trim.pp1)
+plot(ddesemprego.trim.pp1)
+
+ddesemprego.trim.pp2 <- ur.pp(ddesemprego.trim, type = 'Z-tau', model = c("constant"), lags = 'long')
+summary(ddesemprego.trim.pp2)
+plot(ddesemprego.trim.pp2)
+
+#### Outras séries auxiliares ####
+
+#### Ajustando os dados limpos ####
+
+length(ipca.trim)
+length(dcambio.trim)
+length(dcomm.trim)
+length(dcapacidade.trim)
+length(ddesemprego.trim)
+
+# Retirando NA's e ajustando tamanho de obs
+
+ipca.trim <- ipca.trim[-1]
+
+length(ipca.trim)
+length(dcambio.trim)
+length(dcomm.trim)
+length(dcapacidade.trim)
+length(ddesemprego.trim)
+
+#### Exportando os dados ####
+
+dadosdiff.trim <- tibble(dcomm.trim,dcambio.trim, dcapacidade.trim,ddesemprego.trim,ipca.trim,ipcaac.trim)
+dadosdiff.trim
+colnames(dadosdiff.trim) <- cbind( 'dcomm.trim','dcambio.trim', 'dcapacidade.trim' ,"ddesemprego.trim",'ipca.trim',"ipcaac.trim")
+
+
+##################################################
+
+#### TESTE DE LINEARIDADE ####
+
+# Teste de Linearidade - tsDyn ####
+# tsDyn::TVAR.LRtest(dadosdiff.trim, lag = 1, trend = T, thDelay = 1, model = 'TAR', mTh = 2, nboot = 1000, plot = T, test = "1vs")
+
+# Teste de Linearidade - tsDyn ####
+# tsDyn::TVAR.LRtest(dadosdiff.trim, lag = 1, trend = T, thDelay = 1, model = 'TAR', thVar = dcambio.trim, nboot = 1000, plot = T, test = "1vs")
+

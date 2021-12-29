@@ -1,0 +1,49 @@
+#### Carregando pacotes ####
+
+library(AER)
+library('readxl') # Carrega dados do excel
+# library('knitr') # Para Kable
+# library('stargazer') # Para tabelas comparativas
+# library('broom') # Para transformar lm em tibble
+library('normtest') # Para testar normalidade dos res??duos
+library('car') # Teste wald e fiv e estat??sticas robustas
+library('lmtest') # teste resert e BP
+library('ggplot2') # Para gráficos
+library('dplyr') # Pipe operator
+library(xts) # Objeto xts
+library('dynlm') # Para dinamicos
+library(sandwich)
+library(strucchange)
+library(urca)
+library(FinTS)
+# library(gmm)
+library(purrr)
+library(seasonal)
+library(x13binary)
+library(smooth)
+library(forecast)
+library(tidyverse)
+library(zoo)
+library(vars)
+library(tseries)
+library(PerformanceAnalytics)
+library(quantmod)
+library(TTR)
+library(rugarch)
+
+# library(lattice)
+# library(plotrix)
+# library(mFilter)
+# library(matrixcalc)
+# library(BETS)
+# library(data.table)
+# library(tsDyn)
+# library(doMC)
+
+#### Outras Configurações ###
+options(digits=4)
+source("covEWMA.R")
+# registerDoMC(1)
+library(devtools)
+install_github("MatthieuStigler/tsDyn", ref="Dev94", subdir="tsDyn")
+# source('~/Dissertacao/ScriptsR/rootsTVAR.R', echo=TRUE)

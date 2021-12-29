@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1597779259726.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3739745874",
+    "id" : "61D84CD6",
+    "lastKnownWriteTime" : 1608140371,
+    "last_content_update" : 1608140371,
+    "path" : "~/Dissertacao/ScriptsR/Pacotes.R",
+    "project_path" : "Pacotes.R",
+    "properties" : {
+        "cursorPosition" : "26,13",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

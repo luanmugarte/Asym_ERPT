@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1608293134668.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4067493404",
+    "id" : "A15A7105",
+    "lastKnownWriteTime" : 1608293595,
+    "last_content_update" : 1608293595911,
+    "path" : "~/Dissertacao/ScriptsR/Estimação-Modelo1.R",
+    "project_path" : "Estimação-Modelo1.R",
+    "properties" : {
+        "cursorPosition" : "146,0",
+        "scrollLine" : "113"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

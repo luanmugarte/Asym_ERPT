@@ -1,0 +1,155 @@
+#### Criando a base de dados ####
+setwd("~/Dissertacao/ScriptsR")
+source("Pacotes.R", verbose = F)
+source('Dados-Modelo2.R', verbose = F)
+source('Testes-Modelo2.R', verbose = F)
+
+#---------------------------------------------------------------------#
+#                                                                     #
+#####                     DADOS MENSAIS                            ####
+#                                                                     #
+#---------------------------------------------------------------------#
+
+
+# Estimação ####
+dados.modelo2 <- dadosdiff %>% dplyr::select(dcomm,dcambio, dcapacidade,ddesemprego,ipcaac)
+
+
+VARselect(dados.modelo2, type=c("const"))
+
+tv <- tsDyn::TVAR(dados.modelo2, lag=1, include = 'const', commonInter =  F, model = 'TAR',  mTh = 2, nthresh = 1, thDelay = 1, plot = T, trim = 0.1, gamma = 0)
+
+rootsTVAR(tv)
+plot(tv)
+c(AIC(tv), BIC(tv), logLik(tv))
+
+par(mfrow=c(2,2))
+
+tv$coeffmat
+
+dadosdiff
+dadosdiff %>% count(ipcaac <0)
+
+par(mfrow=c(1,1))
+
+regimes <- ts(tv$model.specific$regime[2:length(tv$model.specific$regime)], start = c(2002,3), frequency = 12)
+regimes <- regimes - 1
+plot(regimes)
+
+
+irfsL <- tsDyn::irf(tv, cumulative = F, boot = F, runs = 100, n.ahead = 24, regime = 'L')
+irfsH <- tsDyn::irf(tv, cumulative = F, boot = F, runs = 100, n.ahead = 24, regime = 'H')
+
+
+par(mfrow=c(1,1))
+
+# IRF ####
+
+irfsHdata <- as_tibble((irfsH$irf$dcambio[,'ipcaac']))
+irfsLdata <- as_tibble((irfsL$irf$dcambio[,'ipcaac']))
+irfsHdataCUM <- as_tibble(cumsum(irfsH$irf$dcambio[,'ipcaac']))
+irfsLdataCUM <- as_tibble(cumsum(irfsL$irf$dcambio[,'ipcaac']))
+
+
+
+ggplot(aes(x=0:24, y = value),data = irfsLdata, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio - Regime Apreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+ggplot(aes(x=0:24, y = value),data = irfsHdata, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio - Regime Depreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+ggplot(aes(x=0:24, y = value),data = irfsLdataCUM, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio (acumulado) - Regime Apreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+ggplot(aes(x=0:24, y = value),data = irfsHdataCUM, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio (acumulado) - Regime Depreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+
+
+#---------------------------------------------------------------------#
+#                                                                     #
+#####                     DADOS TRIMESTRAIS                        ####
+#                                                                     #
+#---------------------------------------------------------------------#
+
+
+# Estimação ####
+
+dados.modelo2.trim <- dadosdiff.trim %>% dplyr::select(dcomm.trim,dcambio.trim, dcapacidade.trim,ddesemprego.trim,ipca.trim)
+plot(dcomm.trim)
+plot(dcambio.trim)
+plot(dcapacidade.trim)
+plot(ddesemprego.trim)
+plot(ipcaac.trim)
+
+VARselect(dados.modelo2.trim, type=c("const"))
+
+tv.trim <- tsDyn::TVAR(dados.modelo2.trim, lag=1, include = 'const', commonInter =  F, model = 'TAR',  mTh = 2, nthresh = 1, thDelay = 1, plot = T, trim = 0.1, gamma = 0)
+
+rootsTVAR(tv.trim)
+plot(tv.trim)
+c(AIC(tv.trim), BIC(tv.trim), logLik(tv.trim))
+
+class(tv.trim)
+
+tv.trim$coeffmat
+
+dadosdiff.trim
+dadosdiff.trim %>% count(dcambio.trim > tsDyn::getTh(tv.trim))
+
+
+regimes.trim <- ts(tv.trim$model.specific$regime[2:length(tv.trim$model.specific$regime)], start = c(2002,3), frequency = 4)
+plot(regimes.trim)
+
+
+irfsL.trim <- tsDyn::irf(tv.trim, cumulative = F, boot = F, runs = 100, n.ahead = 24, regime = 'L')
+irfsH.trim <- tsDyn::irf(tv.trim, cumulative = F, boot = F, runs = 100, n.ahead = 24, regime = 'H')
+
+
+par(mfrow=c(1,1))
+
+# IRF ####
+
+irfsHdata.trim <- as_tibble((irfsH.trim$irf$dcambio.trim[,'ipca.trim']))
+irfsLdata.trim <- as_tibble((irfsL.trim$irf$dcambio.trim[,'ipca.trim']))
+irfsHdataCUM.trim <- as_tibble(cumsum(irfsH.trim$irf$dcambio.trim[,'ipca.trim']))
+irfsLdataCUM.trim <- as_tibble(cumsum(irfsL.trim$irf$dcambio.trim[,'ipca.trim']))
+
+irfsHdata.trim
+
+ggplot(aes(x=0:24, y = value),data = irfsLdata.trim, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio - Regime Apreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+ggplot(aes(x=0:24, y = value),data = irfsHdata.trim, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio - Regime Depreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+ggplot(aes(x=0:24, y = value),data = irfsLdataCUM.trim, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio (acumulado) - Regime Apreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+
+ggplot(aes(x=0:24, y = value),data = irfsHdataCUM.trim, colour = "black") +
+  geom_line() +
+  ylab("IPCA") + xlab("Períodos") + theme_bw() +
+  ggtitle("Resposta do IPCA ao impulso da taxa de câmbio (acumulado) - Regime Depreciação") +
+  theme(plot.title = element_text(lineheight=2, face="bold",size = 16))
+

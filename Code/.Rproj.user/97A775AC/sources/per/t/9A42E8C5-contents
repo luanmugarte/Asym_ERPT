@@ -1,0 +1,232 @@
+#### Carregando os dados ####
+
+setwd("/home/luanmugarte/Dissertacao/ScriptsR")
+
+
+ipcaac <- read.csv("Dados/ipcaacumulado.csv")
+ipcaac <- ts((ipcaac[40:nrow(ipcaac),2]), start = c(2002,3), end = c(2016,2), frequency = 12)
+
+
+ipca <- read.csv("Dados/ipcacompleto.csv")
+cambiocompleto <- read.csv("Dados/cambiocompleto.csv")
+capacidade <- read.csv("Dados/capacidade.csv")
+comm <- read.csv("Dados/comm.csv")
+selic <- read.csv('Dados/selic.csv')
+desemprego <- read.csv('Dados/desemprego.csv')
+
+
+#### Arrumando as séries ####
+colnames(capacidade) <- cbind('index','data','valores')
+
+
+# Vendo as séries
+ipca
+cambiocompleto
+comm
+capacidade
+desemprego
+
+
+# Manipulando as séries
+ipca <- ts((ipca[39:nrow(ipca),2]), start = c(2002,3), end = c(2016,2), frequency = 12)
+cambiovol <- ts((cambiocompleto[33:nrow(cambiocompleto),2]), start = c(2001,10), end = c(2016,2), frequency = 12)
+comm <- ts((comm[39:nrow(comm),2]),  start = c(2002,3), end = c(2016,2), frequency = 12)
+capacidade <- ts((capacidade[123:nrow(capacidade),2]),  start = c(2002,3), end = c(2016,2), frequency = 12)
+desemprego <- ts(desemprego[1:nrow(desemprego),2],  start = c(2002,3), end = c(2016,2), frequency = 12)
+
+# Verificando numero de obs
+length(ipca)
+length(cambio)
+length(comm)
+length(capacidade)
+length(selic)
+
+# Plotando as śeries
+par(mfrow=c(1,1))
+plot(ipca)
+plot(comm)
+plot(capacidade)
+plot(cambio)
+plot(desemprego)
+
+#### Dessazonalizando as séries ####
+
+# IPCA
+ipca
+monthplot(ipca)
+seas_ipca <- seas(x = ipca)
+summary(seas_ipca)
+
+seasonal::qs(seas_ipca)
+
+ipcadessaz <- series(seas_ipca, "s11")
+plot(ipca)
+plot(seas_ipca)
+ipca <- ipcadessaz
+
+# Desemprego
+desemprego
+monthplot(desemprego)
+seas_desemprego <- seas(x = desemprego)
+summary(seas_desemprego)
+
+seasonal::qs(seas_desemprego)
+
+desempregodessaz <- series(seas_desemprego, "s11")
+plot(desemprego)
+plot(seas_desemprego)
+desemprego <- desempregodessaz
+
+
+# COMM
+
+monthplot(comm)
+seas_comm <- seas(x = comm)
+summary(seas_comm)
+
+seasonal::qs(seas_comm)
+
+
+
+
+#### Criando séries adicionais ####
+
+# Volatilidade cambial - MSD e EWMA ####
+cambiovol[1]
+
+# Retorno da taxa de câmbio (a série passa a começar em 11/2001)
+cambio.rets = CalculateReturns(cambiovol, "discrete")
+cambio.rets
+
+# Descartando primeira observação (NA) (11/2001)
+cambio.rets <- cambio.rets[-1]
+cambio.rets2 <- cambio.rets ^ 2
+cambio.rets2
+# Verificando o gráfico
+par(mfrow=c(1,1))
+plot.ts(cambio.rets)
+plot.ts(cambio.rets2)
+
+# MSD (Moving Standard Deviation) ####
+
+# Tamanho da janela
+r = 3 
+
+length(comm)
+
+# Calculando SMA
+cambio.MSD <- SMA(cambio.rets2,r)
+cambio.MSD
+length(cambio.MSD)
+cambio.MSD <- cambio.MSD[-1:-2]
+length(cambio.MSD)
+
+# Transformando em objeto xts
+cambio.MSD <- as.xts(ts(cambio.MSD[2:length(cambio.MSD)], start = c(2002,3), end = c(2016,2), frequency = 12))
+
+# Verificando o gráfico
+plot(cambio.MSD)
+
+# EWMA (Exponentially Weighted Moving Average) ####
+
+# Fator de decaimento
+lambda = 0.94
+
+# Cálculo do EWMA
+cambio.rets2 <- as.data.frame(cambio.rets2)
+cambio.EWMA <- covEWMA(cambio.rets2, lambda = lambda)
+cambio.EWMAM <- covEWMA(cambio.rets2, lambda = 0.97)
+cambio.EWMA
+
+# Transformando em objeto xts
+cambio.EWMA <- as.xts(ts(sqrt(cambio.EWMA[5:nrow(cambio.EWMA),,1]),  start = c(2002,3), end = c(2016,2), frequency = 12))
+cambio.EWMAM <- as.xts(ts(sqrt(cambio.EWMAM[5:nrow(cambio.EWMAM), ,1]), start = c(2002,3), end = c(2016,2), frequency = 12))
+
+# Verificando o gráfico
+plot(cambio.EWMA)
+
+cambio.rets2
+
+# Comparação MSD e EWMA ####
+par(mfrow=c(3,1))
+plot(cambio.MSD)
+plot(cambio.EWMA)
+plot(cambio.EWMAM)
+
+
+#### Dados não diferenciados sem expectativas (brutos) ####
+
+# Verificando tamanho dos dados (Deve ser igual a 168 obs)
+length(ipca)
+length(cambio)
+length(comm)
+length(capacidade)
+length(selic)
+length(cambio.MSD)
+length(cambio.EWMA)
+length(cambio.EWMAM)
+
+# Ajustando a data de início da séries de câmbio para 03/2002 e fim em 02/2016
+cambio <- ts((cambiocompleto[39:nrow(cambiocompleto),2]), start = c(2002,3), end = c(2016,2), frequency = 12)
+
+# Verificando novamente tamanho dos dados (Deve ser igual a 242 obs)
+length(cambio)
+length(cambio.MSD)
+length(cambio.EWMA)
+length(cambio.EWMAM)
+
+par(mfrow=c(3,1))
+plot(cambio.MSD)
+plot(cambio.EWMA)
+plot(cambio.EWMAM)
+
+# Exportando os dados
+
+# Coluna de data
+date = seq(from = as.Date("2002-03-01"), to = as.Date("2016-02-01"), by = 'month')
+length(date)
+
+dadosbrutos <- tibble(date,ipca, capacidade, comm, cambio, desemprego, cambio.MSD[,1], cambio.EWMA[,1], ipcaac)
+colnames(dadosbrutos) <- c("date", "ipca.2", "capacidade.2", "comm.2", "cambio.2","desemprego.2",  "cambio.MSD.2", "cambio.EWMA.2", "ipcaac.2")
+
+
+write.csv(dadosbrutos, file = 'Dados/dados-modelo2.csv', row.names = F)
+
+#### Dados trimestrais
+
+# Transformando em objetos xts
+ipca <- as.xts(ipca)
+ipcaac <- as.xts(ipcaac)
+capacidade <- as.xts(capacidade)
+cambio <- as.xts(cambio)
+comm <- as.xts(comm)
+cambio.MSD <- as.xts(cambio.MSD)
+cambio.EWMA <- as.xts(cambio.EWMA)
+cambio.EWMAM <- as.xts(cambio.EWMAM)
+desemprego <- as.xts(desemprego)
+date <- as.xts(date)
+
+# Transformando em dados trimestrais
+ipca.trim <- apply.quarterly(ipca, mean)
+ipcaac.trim <- apply.quarterly(ipcaac, mean)
+cambio.trim <- apply.quarterly(cambio, mean)
+desemprego.trim <- apply.quarterly(desemprego, mean)
+comm.trim <- apply.quarterly(comm, mean)
+capacidade.trim <- apply.quarterly(capacidade, mean)
+cambio.MSD.trim <- apply.quarterly(cambio.MSD, mean)
+cambio.EWMA.trim <- apply.quarterly(cambio.EWMA, mean)
+cambio.EWMAM.trim <- apply.quarterly(cambio.EWMAM, mean)
+date.trim <- seq(from = as.Date("2002-03-01"), to = as.Date("2016-03-01"), by = 'quarter')
+
+ipca.trim
+date.trim
+length(date.trim)
+length(cambio.trim)
+
+
+# Exportando os dados
+
+dadosbrutos.trim <- tibble(date.trim,ipca.trim, capacidade.trim, desemprego.trim, comm.trim, cambio.trim[,1], cambio.MSD.trim[,1], cambio.EWMA.trim[,1], ipcaac.trim)
+colnames(dadosbrutos.trim) <- c("date","ipca.trim.2", "capacidade.trim.2", "desemprego.trim.2","comm.trim.2", "cambio.trim.2","cambio.MSD.trim.2", "cambio.EWMA.trim.2", "ipcaac.trim.2")
+
+write.csv(dadosbrutos.trim, file = 'Dados/dados-modelo2(trim).csv', row.names = F)
