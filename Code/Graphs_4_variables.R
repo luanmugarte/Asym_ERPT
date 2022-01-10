@@ -4,14 +4,16 @@
 nl_plots <- plot_nl(results_nl)
 
 # Criando diretório para exportar gráficos
-ifelse(!dir.exists(file.path('Figuras_LP_Diff')),
-       dir.create(file.path('Figuras_LP_Diff')),
+setwd('/home/luanmugarte/Artigos/Asym_ERPT/')
+
+ifelse(!dir.exists(file.path('Output/Figures')),
+       dir.create(file.path('Output/Figures')),
        FALSE)
 
-ifelse(!dir.exists(file.path('Figuras_LP_Diff', nome_modelo)),
-       dir.create(file.path('Figuras_LP_Diff', nome_modelo)),
+ifelse(!dir.exists(file.path('Output/Figures', nome_modelo)),
+       dir.create(file.path('Output/Figures', nome_modelo)),
        FALSE)
-setwd(file.path('Figuras_LP_Diff/', nome_modelo))
+setwd(file.path('Output/Figures/', nome_modelo))
 
 
 # Função de transição ####
@@ -19,15 +21,16 @@ setwd(file.path('Figuras_LP_Diff/', nome_modelo))
 # Regime 1 é a 1 - função de transição.
 # Regime 2 é a função de transição. 
 if (modelo == 'mensal') {
-  transition_function <- as.xts(ts(results_nl$fz, start = c(1999,9), end = c(2020,2), frequency = 12))
+  transition_function <- as.xts(ts(results_nl$fz, start = c(1999,8), end = c(2020,2), frequency = 12))
 } else {
-  transition_function <- as.xts(ts(results_nl$fz, start = c(1999,4), end = c(2020,1), frequency = 4))
+  transition_function <- as.xts(ts(results_nl$fz, start = c(1999,4), end = c(2019,4), frequency = 4))
 }
 
-transition_function['2002:12']
+transition_function["2002:10"]
 
+plot(transition_function)
 date <- time(transition_function)
-
+date
 if (modelo == 'mensal') {
   if ( (transition_function['2002:8'] < 0.2) &&
        (transition_function['2002:9'] < 0.2) &&
@@ -39,7 +42,8 @@ if (modelo == 'mensal') {
     regime_2 = 'Regime de Depreciação' 
   }
 } else {
-  if (transition_function['2002:4'] < 0.2) {
+  if ((transition_function['2002:7'] < 0.2) &&
+      (transition_function['2002:10'] < 0.2)) {
     regime_1 = 'Regime de Depreciação'
     regime_2 = 'Regime de Apreciação' 
   } else {
@@ -48,9 +52,17 @@ if (modelo == 'mensal') {
   }
 }
 
-date <- date[max(c(lag_endog,lag_exog)):length(date)]
+date <- date[(max(c(lag_endog,lag_exog))+1+lag_fz):length(date)]
 date
+
+length(date)
+
+length(results_nl$fz)
+
+# Criando dataframe dos dados
 df <- tibble(bind_cols(results_nl$fz,date), .name_repair = ~c('transition_function','date'))
+
+# Plotando o gráfico da função de transição
 ggplot(df)  + 
   # geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf, fill = col), alpha = 0.4, show.legend = F) +
   geom_line(aes(x=date, y=transition_function), size = 0.75, color = 'darkred') +
@@ -80,8 +92,10 @@ ggsave(paste0('Funcao_Transicao'),device = "png",width = 12, height = 8, units =
 
 # IRF - Regime 1
 
+# Criando um vetor que contem os objetos dos plots
 plot_lst <- vector("list", length = length(modelo_endo))
 
+# For loop para fazer o gráfico da IRF para cada variável de resposta
 for (i in 1:length(modelo_endo)) {
   
   IRF_s1 <- tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
@@ -127,8 +141,11 @@ ggsave(paste0('IRF_IPCA_',regime_1),device = "png",width = 12, height = 8, units
 
 
 # IRF - Regime 2
+
+# Criando um vetor que contem os objetos dos plots
 plot_lst <- vector("list", length = length(modelo_endo))
 
+# For loop para fazer o gráfico da IRF para cada variável de resposta
 for (i in 1:length(modelo_endo)) {
   
   IRF_s2 <- tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
@@ -170,100 +187,6 @@ ggdraw() +
 
 # ggsave(paste0(nome_modelo,'_',regime_2),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
 ggsave(paste0('IRF_IPCA_',regime_2),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
-
-
-# (DESATIVADO) Choques da taxa de câmbio nas variáveis ####
-
-# # IRF - Regime 1
-# 
-# plot_lst <- vector("list", length = length(modelo_endo))
-# 
-# for (i in 1:length(modelo_endo)) {
-#   
-#   IRF_s1 <- tibble(bind_cols(results_nl$irf_s1_mean[i,,cambio_shock],
-#                              results_nl$irf_s1_up[i,,cambio_shock],
-#                              results_nl$irf_s1_low[i,,cambio_shock]),
-#                    .name_repair = ~ c('IRF','IRF_upper','IRF_lower'))
-#   
-#   plot_lst[[i]] <- ggplot(IRF_s1)  + 
-#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_upper), fill = "GREY90") +
-#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_lower), fill = "GREY90") +
-#     geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
-#     geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
-#     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
-#     geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'cadetblue', size = 0.75) +
-#     scale_x_continuous(name = "",breaks=seq(0,18,1), 
-#     ) +
-#     labs(title = paste0('Resposta do IPCA ao choque de ',colnames(modelo_endo[,i]),' - ',regime_1)) +
-#     ylab('') +
-#     theme_classic() +
-#     theme(  panel.grid = element_blank(), 
-#             panel.border = element_blank(),
-#             legend.position="right",
-#             legend.title = element_text(hjust = 0.5),
-#             legend.text = element_text(size=10),
-#             legend.key = element_rect(colour = "black"),
-#             legend.box.background = element_rect(colour = "black", size = 1),
-#             plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-#             plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
-#             axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
-#             axis.text.y = element_text(size=11,colour = 'black'))
-#   
-# }
-# 
-# ggdraw() +
-#   draw_plot(plot_lst[[1]], x = 0, y = 0.5, height = .5, width = .5) +
-#   draw_plot(plot_lst[[2]], x = 0.5, y = 0.5, height = .5, width = .5) +
-#   draw_plot(plot_lst[[3]], x = 0, y = 0, height = .5, width = .5) +
-#   draw_plot(plot_lst[[4]], x = 0.5, y = 0, height = .5, width = .5)
-# 
-# 
-# ggsave(paste0('Choques_cambiais_',regime_1),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
-# 
-# 
-# # IRF - Regime 2
-# plot_lst <- vector("list", length = length(modelo_endo))
-# 
-# for (i in 1:length(modelo_endo)) {
-#   
-#   IRF_s2 <- tibble(bind_cols(results_nl$irf_s2_mean[i,,cambio_shock],
-#                              results_nl$irf_s2_up[i,,cambio_shock],
-#                              results_nl$irf_s2_low[i,,cambio_shock]),
-#                    .name_repair = ~ c('IRF','IRF_upper','IRF_lower'))
-#   
-#   plot_lst[[i]] <- ggplot(IRF_s2)  + 
-#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_upper), fill = "GREY90") +
-#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_lower), fill = "GREY90") +
-#     geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
-#     geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
-#     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
-#     geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'bisque3', size = 0.75) +
-#     scale_x_continuous(name = "",breaks=seq(0,18,1), 
-#     ) +
-#     labs(title = paste0('Resposta do IPCA ao choque de ',colnames(modelo_endo[,i]),' - ',regime_2)) +
-#     ylab('') +
-#     theme_classic() +
-#     theme(  panel.grid = element_blank(), 
-#             panel.border = element_blank(),
-#             legend.position="right",
-#             legend.title = element_text(hjust = 0.5),
-#             legend.text = element_text(size=10),
-#             legend.key = element_rect(colour = "black"),
-#             legend.box.background = element_rect(colour = "black", size = 1),
-#             plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-#             plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
-#             axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
-#             axis.text.y = element_text(size=11,colour = 'black'))
-#   
-# }
-# 
-# ggdraw() +
-#   draw_plot(plot_lst[[1]], x = 0, y = 0.5, height = .5, width = .5) +
-#   draw_plot(plot_lst[[2]], x = 0.5, y = 0.5, height = .5, width = .5) +
-#   draw_plot(plot_lst[[3]], x = 0, y = 0, height = .5, width = .5) +
-#   draw_plot(plot_lst[[4]], x = 0.5, y = 0, height = .5, width = .5)
-# 
-# ggsave(paste0('Choques_cambiais_',regime_2),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
 
 
 # Calculando o repasse cambial conforme Belaisch (2003) ####
@@ -375,4 +298,97 @@ ggdraw() +
   draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
 
 ggsave(paste0('RC_Belaisch'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+
+# (DESATIVADO) Choques da taxa de câmbio nas variáveis ####
+
+# # IRF - Regime 1
+# 
+# plot_lst <- vector("list", length = length(modelo_endo))
+# 
+# for (i in 1:length(modelo_endo)) {
+#   
+#   IRF_s1 <- tibble(bind_cols(results_nl$irf_s1_mean[i,,cambio_shock],
+#                              results_nl$irf_s1_up[i,,cambio_shock],
+#                              results_nl$irf_s1_low[i,,cambio_shock]),
+#                    .name_repair = ~ c('IRF','IRF_upper','IRF_lower'))
+#   
+#   plot_lst[[i]] <- ggplot(IRF_s1)  + 
+#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_upper), fill = "GREY90") +
+#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_lower), fill = "GREY90") +
+#     geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
+#     geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
+#     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
+#     geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'cadetblue', size = 0.75) +
+#     scale_x_continuous(name = "",breaks=seq(0,18,1), 
+#     ) +
+#     labs(title = paste0('Resposta do IPCA ao choque de ',colnames(modelo_endo[,i]),' - ',regime_1)) +
+#     ylab('') +
+#     theme_classic() +
+#     theme(  panel.grid = element_blank(), 
+#             panel.border = element_blank(),
+#             legend.position="right",
+#             legend.title = element_text(hjust = 0.5),
+#             legend.text = element_text(size=10),
+#             legend.key = element_rect(colour = "black"),
+#             legend.box.background = element_rect(colour = "black", size = 1),
+#             plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
+#             plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
+#             axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
+#             axis.text.y = element_text(size=11,colour = 'black'))
+#   
+# }
+# 
+# ggdraw() +
+#   draw_plot(plot_lst[[1]], x = 0, y = 0.5, height = .5, width = .5) +
+#   draw_plot(plot_lst[[2]], x = 0.5, y = 0.5, height = .5, width = .5) +
+#   draw_plot(plot_lst[[3]], x = 0, y = 0, height = .5, width = .5) +
+#   draw_plot(plot_lst[[4]], x = 0.5, y = 0, height = .5, width = .5)
+# 
+# 
+# ggsave(paste0('Choques_cambiais_',regime_1),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+# 
+# 
+# # IRF - Regime 2
+# plot_lst <- vector("list", length = length(modelo_endo))
+# 
+# for (i in 1:length(modelo_endo)) {
+#   
+#   IRF_s2 <- tibble(bind_cols(results_nl$irf_s2_mean[i,,cambio_shock],
+#                              results_nl$irf_s2_up[i,,cambio_shock],
+#                              results_nl$irf_s2_low[i,,cambio_shock]),
+#                    .name_repair = ~ c('IRF','IRF_upper','IRF_lower'))
+#   
+#   plot_lst[[i]] <- ggplot(IRF_s2)  + 
+#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_upper), fill = "GREY90") +
+#     geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF, ymax =IRF_lower), fill = "GREY90") +
+#     geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
+#     geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
+#     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
+#     geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'bisque3', size = 0.75) +
+#     scale_x_continuous(name = "",breaks=seq(0,18,1), 
+#     ) +
+#     labs(title = paste0('Resposta do IPCA ao choque de ',colnames(modelo_endo[,i]),' - ',regime_2)) +
+#     ylab('') +
+#     theme_classic() +
+#     theme(  panel.grid = element_blank(), 
+#             panel.border = element_blank(),
+#             legend.position="right",
+#             legend.title = element_text(hjust = 0.5),
+#             legend.text = element_text(size=10),
+#             legend.key = element_rect(colour = "black"),
+#             legend.box.background = element_rect(colour = "black", size = 1),
+#             plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
+#             plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
+#             axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
+#             axis.text.y = element_text(size=11,colour = 'black'))
+#   
+# }
+# 
+# ggdraw() +
+#   draw_plot(plot_lst[[1]], x = 0, y = 0.5, height = .5, width = .5) +
+#   draw_plot(plot_lst[[2]], x = 0.5, y = 0.5, height = .5, width = .5) +
+#   draw_plot(plot_lst[[3]], x = 0, y = 0, height = .5, width = .5) +
+#   draw_plot(plot_lst[[4]], x = 0.5, y = 0, height = .5, width = .5)
+# 
+# ggsave(paste0('Choques_cambiais_',regime_2),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
 

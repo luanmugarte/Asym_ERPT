@@ -1,4 +1,9 @@
-setwd('/home/luanmugarte/Dissertacao/Scripts')
+# Code for cleaning and manipulating the data 
+# into the necessary objects for the estimation
+
+# Estabelecendo diretório padrão
+
+setwd('/home/luanmugarte/Artigos/Asym_ERPT')
 
 #### Carregando os dados ####
 

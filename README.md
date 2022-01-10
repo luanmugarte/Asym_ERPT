@@ -1,12 +1,17 @@
-# Anotações Artigo
+# Asym_ERPT
 
-[TOC]
+Code for ongoing research on asymmetric Exchange Rate Pass-Through (ERPT) in Brazil.
 
-## Github
+# Brief description
 
-- Criar
+**Data and sample**
 
-## Scripts
+Data obtained from multiple sources, such as database provided by the BCB, IMF and IBGE. More details at the documentation folder. The used sample consists of the time period between August 1999 and February 2020. A sample with quarterly frequency was also analyzed ranging from 1999-4T to 2019-4T.
 
-- É necessário achar uma forma mais robusta de encontrar os regimes.
-- É necessário arrumar os scripts de estimação, gráficos e principal
+**Methodology**
+
+In order to investigate the possibility of asymmetric ERPT, a local projections method was employed. The R package lpirfs was used for this objective.
+
+**Main results**
+
+Main results for the estimated models are exported to the Output folder.

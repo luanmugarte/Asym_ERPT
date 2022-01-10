@@ -1,13 +1,10 @@
 # Configurações iniciais ####
 
-if (!exists("dadosbrutos")) {
-  source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Packages.R', echo=F, verbose = F)
-  source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Cleaning_data_monthly.R', echo=F, verbose = F)
+if ( (!exists("dadosbrutos")) & (!exists("dadosbrutos_trim")) )  {
+  source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Packages.R', verbose = F)
+  source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Cleaning_data.R', verbose = F)
 }
 
-if (!exists("dadosbrutos.trim")) {
-  source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Cleaning_data_quarterly.R', echo=F)
-}
 
 
 # Estabelecendo diretório padrão
@@ -15,7 +12,7 @@ if (!exists("dadosbrutos.trim")) {
 setwd('/home/luanmugarte/Artigos/Asym_ERPT/')
 
 # Resgatando as variáveis do modelo
-dadosbrutos.trim
+dadosbrutos_trim
 dadosbrutos
 length(dadosbrutos)
 
@@ -25,13 +22,13 @@ length(dadosbrutos)
 comm_endo = F
 
 # Frequência (mensal ou trim)
-modelo = 'mensal'
+modelo = 'trim'
 
 # Tendência (1) ou sem tendência (0)
 model_trend = 0
 
 # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
-contemp_effect = 0
+contemp_effect = 1
 
 # Variável de demanda agregada (capacidade, pib ou pimpf)
 DA_variable = 'pimpf'
@@ -47,7 +44,14 @@ gamma_transition = 3
 lag_endog = 1
 
 # Lags das variáveis exógenas
-lag_exog = 2
+lag_exog = 1
+
+# Lags da variável de transição
+lag_switch_variable = T
+
+# Definição dos choques e respostas
+response <- grep('ipca', colnames(modelo_endo))
+cambio_shock <- grep('cambio', colnames(modelo_endo))
 
 # Estimação #### 
 
@@ -58,7 +62,7 @@ if (modelo == 'mensal'){
   date <- seq(1999.77,2020.23,1/12)
   lambda_hp = 14400
 } else   {
-  dados <- dadosbrutos.trim
+  dados <- dadosbrutos_trim
   date <- seq(2000.26,2019.99,1/4)
   lambda_hp = 1600
 }
@@ -73,34 +77,44 @@ comm_df <- dados %>%
 modelo_exog <- data.frame(comm_df) 
 modelo_exog
 
+# Ajuste dos dados da variável de transição (taxa de câmbio)
+cambio_switching <- dados %>%
+  dplyr::select(cambio) %>%
+  slice(-1)
+
+if(lag_switch_variable == T){
+  lag_fz <- 1
+} else {
+  lag_fz <- 0
+}
+
 # Escolha das variáveis do modelo
 if (comm_endo == T) {
   modelo_endo <- dados %>%
-    dplyr::select(comm,cambio, DA_variable,desemprego,ipcaindice) %>%
-    mutate(desemprego = desemprego + 1) %>%
-    mutate(across(everything(), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+    dplyr::select(comm,cambio, DA_variable,desemprego,ipca) %>%
+    mutate(across(!c(desemprego,ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+    mutate(ipca = ipca/100) %>%
     drop_na()
-  modelo_endo
+  
 } else {
 
   modelo_endo <- dados %>%
-    dplyr::select(cambio, DA_variable,desemprego,ipcaindice) %>%
-    mutate(desemprego = desemprego + 1) %>%
-    mutate(across(everything(), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+    dplyr::select(cambio, DA_variable,desemprego,ipca) %>%
+    mutate(across(!c(ipca,desemprego), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+    mutate(ipca = as.numeric(ipca)/100) %>%
+    mutate(desemprego = as.numeric(desemprego)) %>%
     drop_na()
   
 }
+modelo_endo
 
-# Definição dos choques e respostas
-response <- grep('ipcaindice', colnames(modelo_endo))
-cambio_shock <- grep('cambio', colnames(modelo_endo))
   
 # Escolha das variáveis exógenas, caso exista
 # OBS: é necessário ajustar a configuração na função de estimação
 
 # Nome do Modelo para exportar figuras
 
-# Primeira parte: variáveix exógenas
+# Primeira parte: variáveis exógenas
 # Segunda parte: variáveis endógenas de demanda agregada
 if (model_trend == 1){
   name_trend = 'trend'
@@ -140,34 +154,27 @@ nome_modelo = paste0(toupper(modelo),
                      paste0('_gamma[',as.character(gamma_transition),']')
                      )
 }
-# Função lp_nl ####
 
 # Seleção de defasagem ótima
 VARselect(modelo_endo)
-cambio_switching <- dados %>%
-  dplyr::select(cambio) %>%
-  slice(-1)
-  
 
-
-lag_endog <- VARselect(modelo_endo)$selection[2]
-
+# lag_endog <- VARselect(modelo_endo)$selection[2]
 
 lag <- stats::lag
-# Estimando as projeções locais
-?lp_nl
-## Parâmetros
+# Estimando as projeções locais ####
+
+# Parâmetros e configurações
 if (comm_endo == T) {
   results_nl <- lp_nl(
     modelo_endo, # Variáveis endógenas
     lags_endog_lin = lag_endog, # Lags do modelo
     lags_endog_nl = lag_endog, # Lags do modelo
     shock_type = 0, # Tipo de choques: no caso, 0 é de 1 desvio padrão
-    confint = 1.65, # Intervalo de confiança de 95%
+    confint = 1.96, # Intervalo de confiança de 95%
     use_nw = T, # Usar erros padrão de Newey-West para as respostas ao impulso (correção de viés)
     hor = hor_lps, # Horizonte para as LP
     switching = modelo_endo['cambio'], # Definição da série de transição
-    lag_switching = T, # Uso da variável de transição de forma defasada
+    lag_switching = lag_switch_variable, # Uso da variável de transição de forma defasada
     use_hp = T, # Usar filtro de HP para decompor 
     lambda = lambda_hp, # Lambda para o filtro HP, 14400 é mensal
     trend = model_trend, # Sem variável de tendência
@@ -182,11 +189,11 @@ if (comm_endo == T) {
     lags_endog_lin = lag_endog, # Lags do modelo
     lags_endog_nl = lag_endog, # Lags do modelo
     shock_type = 0, # Tipo de choques: no caso, 0 é de 1 desvio padrão
-    confint = 1.65, # Intervalo de confiança de 95%
+    confint = 1.96, # Intervalo de confiança de 95%
     use_nw = T, # Usar erros padrão de Newey-West para as respostas ao impulso (correção de viés)
     hor = hor_lps, # Horizonte para as LP
     switching = cambio_switching, # Definição da série de transição
-    lag_switching = T, # Uso da variável de transição de forma defasada
+    lag_switching = lag_switch_variable, # Uso da variável de transição de forma defasada
     use_hp = T, # Usar filtro de HP para decompor 
     lambda = lambda_hp, # Lambda para o filtro HP, 14400 é mensal
     trend = model_trend, # Sem variável de tendência
@@ -204,8 +211,9 @@ if (comm_endo == T) {
 #######################################################################
 
 if (comm_endo == T) {
-source('~/Dissertacao/Scripts/NonlinearLP_graphs_5_variables.R', echo=F)
+source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Graphs_5_variables.R', echo = F, verbose = F)
 } else {
-source('~/Dissertacao/Scripts/NonlinearLP_graphs_4_variables.R', echo=F)
+source('/home/luanmugarte/Artigos/Asym_ERPT/Code/Graphs_4_variables.R', verbose =F)
 }
+
 nome_modelo
