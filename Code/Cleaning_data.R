@@ -3,8 +3,6 @@
 
 # Estabelecendo diretório padrão
 
-setwd('/home/luanmugarte/Artigos/Asym_ERPT')
-
 # Carregando os dados ####
 
 # # IPCA
@@ -41,6 +39,10 @@ pimpfantiga <- read.csv("Data/Analytic/pimpfantiga.csv")
 
 # Desemprego (Retropolada)
 desemprego <- read.csv('Data/Analytic/PNADc Retropolada (Carvalho, 2016) - Taxa de Desemprego.csv', header = F, dec = ",")
+
+# Índice Petróleo - FMI
+petro <- read.csv("Data/Analytic/APSP_oil.csv")
+petro
 
 #### Manipulando as séries ####
 
@@ -106,6 +108,16 @@ ipa <- ts((ipa[71:nrow(ipa),2]), start = c(1999,7), end = c(2020,2), frequency =
 
 # IPCA - Alimentos e Bebidas
 ipca_alimbebs <- ts((ipcadecomp[8:nrow(ipcadecomp),3]), start = c(1999,7), end = c(2020,2), frequency = 12)
+
+# Petroleo
+petro <- ts((petro[1:nrow(petro),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
+petro
+
+# Dummy para a GFC
+gfc_dummy <- tibble(seq(from = as.Date("1999-07-01"), to = as.Date("2020-02-01"), by = 'month'), .name_repair = ~c("date")) %>%
+  mutate(dummy = ifelse(((date > "2008-08-01") & (date < "2009-08-01")), 1,0)) %>%
+  dplyr::select(dummy)
+gfc_dummy
 
 # Plotando as śeries
 par(mfrow=c(1,1))
@@ -199,7 +211,7 @@ length(desemprego)
 
 # Coluna de data
 
-date = seq(from = as.Date("1999-07-01"), to = as.Date("2020-02-01"), by = 'month')
+date <- seq(from = as.Date("1999-07-01"), to = as.Date("2020-02-01"), by = 'month')
 
 length(date)
 
@@ -216,6 +228,8 @@ dadosbrutos <- tibble(date,
                       cambio,
                       pimpf,
                       ipcaindice,
+                      petro,
+                      gfc_dummy,
                        .name_repair = ~  c("date",
                                            "ipca",
                                            'ipa',
@@ -225,7 +239,10 @@ dadosbrutos <- tibble(date,
                                            "comm",
                                            "cambio",
                                            "pimpf",
-                                           "ipcaindice"))
+                                           "ipcaindice",
+                                           "petro",
+                                           "gfc_dummy"
+                                           ))
 
 
 #######################################################################
@@ -255,6 +272,7 @@ comm <- as.xts(comm)[4:(length(comm)-2)]
 pimpf <- as.xts(pimpf)[4:(length(pimpf)-2)]
 desemprego <- as.xts(desemprego)[4:(length(desemprego)-2)]
 ipcaindice <- as.xts(ipcaindice)[4:(length(ipcaindice)-2)]
+petro <- as.xts(petro)[4:(length(petro)-2)]
 pib_hiato <- as.xts(pib_hiato)
 pib <- as.xts(pib)
 
@@ -268,6 +286,8 @@ capacidade_trim <- apply.quarterly(capacidade, mean)
 pimpf_trim <- apply.quarterly(pimpf, mean)
 desemprego_trim <- apply.quarterly(desemprego, mean)
 ipcaindice_trim <- apply.quarterly(ipcaindice, mean)
+petro_trim <- apply.quarterly(petro, mean)
+
 date_trim <- seq(from = as.Date("1999-10-01"), to = as.Date("2019-12-01"), by = 'quarter')
 
 # Exportando os dados ####
@@ -299,6 +319,7 @@ dadosbrutos_trim <- tibble(date_trim,
                            pimpf_trim,
                            ipcaindice_trim,
                            pib_hiato,
+                           petro_trim,
                            .name_repair = ~  c("date",
                                                "ipca",
                                                'igp',
@@ -310,7 +331,8 @@ dadosbrutos_trim <- tibble(date_trim,
                                                "cambio",
                                                "pimpf",
                                                "ipcaindice",
-                                               "pib.hiato"))
+                                               "pib_hiato",
+                                               "petro"))
 
 
 
