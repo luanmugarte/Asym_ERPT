@@ -14,7 +14,7 @@ setwd(path_directory)
 # Rodando modelo específico ####
 
 # Comm exógeno ou endógeno
-comm_endo = F
+comm_endo = T
 
 # Frequência (mensal ou trim)
 modelo = 'mensal'
@@ -27,7 +27,7 @@ contemp_effect = 0
 
 # Variável de demanda agregada (capacidade ou pimpf).
 # Caso o modelo seja trim, também podem ser (pib ou pib_hiato)
-DA_variable = 'pimpf'
+DA_variable = 'pib'
 
 # Horizonte das LP's
 hor_lps <- 18
@@ -46,7 +46,7 @@ lag_exog = 1
 ext_inflation = 'petro'
 
 # Lags da variável de transição
-lag_switch_variable = F
+lag_switch_variable = T
 
 # Incluir dummy da GFC
 include_gfc_dummy = T
@@ -54,9 +54,19 @@ include_gfc_dummy = T
 # Intervalo de confiança das IRFs
 sig_IC = 95
 
+# Taxa de Desemprego em variação percentual
+desemprego_diff = F
+
+
 # Rodando código de estimação
+
 source('Code/Model_Estimation.R', verbose = F)
 
+modelo_endo
+VARselect(modelo_endo)
+nome_modelo
+var_modelo <- VAR(modelo_endo, p = 1)
+roots(var_modelo)
 # Rodando vários modelos ####
 
 # Escolhas consolidadas ####
@@ -64,13 +74,13 @@ source('Code/Model_Estimation.R', verbose = F)
 model_trend = 0
 
 # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
-contemp_effect = 1
+contemp_effect = 0
  
 # Lags das variáveis exógenas
 lag_exog = 1
 
 # Lags da variável de transição
-lag_switch_variable = F
+lag_switch_variable = T
 
 # Frequência (mensal ou trim)
 modelo = 'mensal'
@@ -81,57 +91,73 @@ hor_lps <- 18
 # Intervalo de confiança das IRFs
 sig_IC = 95
 
+# Inflação externa endógena 
+comm_endo = T
+
 # Outras escolhas ####
 
 # Gamma da função de transição
 gamma_transition = 3
 
 # Lags das variáveis endógenas
-lag_endog = 4
+lag_endog = 1
+
+# Lags das variáveis exógenas
+lag_exog = 1
 
 # Variável de inflação externa
-ext_inflation = 'petro'
+ext_inflation = 'comm'
 
 # Incluir dummy da GFC
-include_gfc_dummy = T
+include_gfc_dummy = F
+
+# Taxa de Desemprego em variação percentual
+desemprego_diff = T
+
 
 # Rodando for loop para gerar os modelos ####
 # Caso interrompa loop
+path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
 setwd(path_directory)
 
 # Lista de variáveis endógenas
-variables_list <- c('capacidade','pimpf','pib','pib_hiato')
+endo_list <- c('capacidade','pimpf','pib','pib_hiato')
+exo_list <- c('comm','petro')
 
 # Lista de outras opções
-comm_endo_option <- c(TRUE,FALSE)
-lags_option <- c(1:4)
-gamma_option <- c(2:7)
+lags_option <- c(1:3)
+gamma_option <- c(3:6)
+CI_option <- c(90,95)
 
 # Contador simples
 counter <- 0
 loop_counter <- 0
 
 # Código do for loop
-for (i in variables_list){
-  for (j in lags_option) {
+first_loop <- lags_option
+second_loop <- gamma_option
+
+for (i in first_loop){
+  for (j in second_loop) {
     
-    DA_variable = i
-    gamma_transition = 4
-    lag_endog = j
-    nome_modelo = 'Loop'
-    comm_endo = T
+    lag_endog = i
+    DA_variable = 'pib'
+    ext_inflation = 'comm'
+    gamma_transition = j
+    sig_IC = 95
+    nome_modelo = 'default'
+    
     try( source('Code/Model_Estimation.R', verbose = F), silent = T )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
       counter = counter + 1
-      print(paste0(counter," model(s) run!"))
+      print(paste0(counter*3," model(s) run!"))
     }
       loop_counter <- loop_counter + 1
     }
-  if (loop_counter == length(variables_list)*length(comm_endo_option)) {
+  if (loop_counter == length(first_loop)*length(second_loop)) {
     print("Done!")
   }
       
 }
 
-sig_IC

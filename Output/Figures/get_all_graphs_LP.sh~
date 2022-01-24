@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Pequeno comando bash para distribuir as imagens em pastas referentes às variáveis pertinentes
+
+mkdir -p graficos/capacidade
+mkdir -p graficos/pib
+mkdir -p graficos/pimpf
+
+cp -t graficos/capacidade MENSAL_*capacidade*/*
+cp -t graficos/pib MENSAL_*pib*/*
+cp -t graficos/pimpf MENSAL_*pimpf*/*
+

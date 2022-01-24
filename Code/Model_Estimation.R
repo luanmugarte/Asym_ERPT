@@ -22,33 +22,23 @@ if (modelo == 'mensal'){
   lambda_hp = 1600
 }
 
-
-
-# Seleção de variável de commodities
-if (ext_inflation == 'comm') {
-  ext_inflation <- 'comm'
-} else {
-  ext_inflation <- 'petro'
-}
-ext_inflation
-
 # Variável de comm para o caso de ser exógeno
-comm_df <- dados %>%
+ext_inflation_df <- dados %>%
   dplyr::select(all_of(ext_inflation)) %>%
   mutate(across(everything(), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
   drop_na()
-
+ext_inflation_df
 # Precisa ser dataframe para a função lp_nl
-modelo_exog <- data.frame(comm_df)
+modelo_exog <- data.frame(ext_inflation_df)
 
 if (include_gfc_dummy == T & comm_endo == T) {
   modelo_exog <- data.frame(dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
   colnames(modelo_exog) <- 'gfc_dummy'
 } else if (include_gfc_dummy == T & comm_endo == F) {
-  modelo_exog <- data.frame(comm_df,dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
+  modelo_exog <- data.frame(ext_inflation_df,dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
   colnames(modelo_exog) <- c('ext_inflation', 'gfc_dummy')
 } else {
-  modelo_exog <- data.frame(comm_df)
+  modelo_exog <- data.frame(ext_inflation_df)
   colnames(modelo_exog) <- 'ext_inflation'
 }
 
@@ -65,18 +55,46 @@ if(lag_switch_variable == T){
   lag_fz <- 0
 }
 
+if (desemprego_diff == T) {
+if (comm_endo == T) {
+  if (DA_variable == "pib_hiato") {
+    modelo_endo <- dados %>%
+      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+      mutate(across(!c(ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(across(c(all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
+      mutate(ipca = ipca/100) %>%
+      drop_na()
+  } else {
+    modelo_endo <- dados %>%
+      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+      mutate(desemprego = (1+as.numeric(desemprego))) %>%
+      mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(ipca = as.numeric(ipca)/100) %>%
+      drop_na()
+  }
+} else {
+  
+  modelo_endo <- dados %>%
+    dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
+    mutate(desemprego = (1+as.numeric(desemprego))) %>%
+    mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+    mutate(ipca = as.numeric(ipca)/100) %>%
+    drop_na()
+  
+}
+} else {
 
 if (comm_endo == T) {
   if (DA_variable == "pib_hiato") {
   modelo_endo <- dados %>%
-    dplyr::select(comm,cambio, all_of(DA_variable),desemprego,ipca) %>%
-    mutate(across(!c(desemprego,ipca,DA_variable), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-    mutate(across(c(desemprego,DA_variable,ipca), ~ as.numeric(.))) %>%
+    dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+    mutate(across(!c(desemprego,ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+    mutate(across(c(desemprego,all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
     mutate(ipca = ipca/100) %>%
     drop_na()
   } else {
   modelo_endo <- dados %>%
-    dplyr::select(comm,cambio, all_of(DA_variable),desemprego,ipca) %>%
+    dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
     mutate(across(!c(desemprego,ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
     mutate(desemprego = as.numeric(desemprego)) %>%
     mutate(ipca = as.numeric(ipca)/100) %>%
@@ -85,14 +103,14 @@ if (comm_endo == T) {
 } else {
   
   modelo_endo <- dados %>%
-    dplyr::select(cambio, all_of(DA_variable),desemprego,ipca) %>%
+    dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
     mutate(across(!c(ipca,desemprego), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
     mutate(ipca = as.numeric(ipca)/100) %>%
     mutate(desemprego = as.numeric(desemprego)) %>%
     drop_na()
   
 }
-
+}
 modelo_endo
 modelo_exog
 
@@ -141,6 +159,7 @@ if (comm_endo == T) {
                        name_trend,
                        ']_endo[',
                        ext_inflation,
+                       '_',
                        DA_variable,
                        paste0('(',as.character(lag_endog),')]'),
                        paste0('_gamma[',as.character(gamma_transition),']')
@@ -217,6 +236,6 @@ if (comm_endo == T) {
 #######################################################################
 
 # Exportando figuras ####
-source('Code/Graphs_results_v3.R', verbose = F, echo = F)
+source('Code/Graphs_results_v4.R', verbose = F, echo = F)
 nome_modelo
 

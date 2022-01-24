@@ -44,6 +44,10 @@ desemprego <- read.csv('Data/Analytic/PNADc Retropolada (Carvalho, 2016) - Taxa 
 petro <- read.csv("Data/Analytic/APSP_oil.csv")
 petro
 
+# PIB
+pib_mensal <- read.csv("Data/Analytic/pib_mensal.csv", sep = ';')
+pib_mensal
+
 #### Manipulando as séries ####
 
 # Ajustando nomes das colunas
@@ -111,7 +115,9 @@ ipca_alimbebs <- ts((ipcadecomp[8:nrow(ipcadecomp),3]), start = c(1999,7), end =
 
 # Petroleo
 petro <- ts((petro[1:nrow(petro),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
-petro
+
+# PIB mensal
+pib_mensal <- ts((pib_mensal[1:nrow(pib_mensal),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
 
 # Dummy para a GFC
 gfc_dummy <- tibble(seq(from = as.Date("1999-07-01"), to = as.Date("2020-02-01"), by = 'month'), .name_repair = ~c("date")) %>%
@@ -188,6 +194,17 @@ plot(seas_pimpf)
 pimpf <- pimpfdessaz
 par(mfrow=c(1,1))
 
+# Extraindo hiato do produto
+pib_mensal.hp <- hpfilter(log(pib_mensal), freq = 12, type = 'frequency')
+
+par(mfrow=c(2,1))
+plot(pib_mensal.hp$trend)
+plot(pib_mensal)
+plot(log(pib_mensal)-pib_mensal.hp$trend)
+plot(diff(log(pib_mensal)))
+par(mfrow=c(1,1))
+pib_hiato <- (log(pib_mensal)-pib_mensal.hp$trend)
+pib_hiato
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$##
 #                                                                     #
@@ -206,6 +223,7 @@ length(cambio)
 length(comm)
 length(capacidade)
 length(desemprego)
+length(pib_hiato)
 
 # Exportando os dados
 
@@ -230,6 +248,8 @@ dadosbrutos <- tibble(date,
                       ipcaindice,
                       petro,
                       gfc_dummy,
+                      pib_mensal,
+                      pib_hiato,
                        .name_repair = ~  c("date",
                                            "ipca",
                                            'ipa',
@@ -241,7 +261,9 @@ dadosbrutos <- tibble(date,
                                            "pimpf",
                                            "ipcaindice",
                                            "petro",
-                                           "gfc_dummy"
+                                           "gfc_dummy",
+                                           'pib',
+                                           'pib_hiato'
                                            ))
 
 
