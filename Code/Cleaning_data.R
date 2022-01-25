@@ -194,6 +194,23 @@ plot(seas_pimpf)
 pimpf <- pimpfdessaz
 par(mfrow=c(1,1))
 
+# PIB
+pib_mensal
+monthplot(pib_mensal)
+seas_pib_mensal <- seas(x = pib_mensal)
+summary(seas_pib_mensal)
+
+seasonal::qs(seas_pib_mensal)
+
+pib_mensaldessaz <- series(seas_pib_mensal, "s11")
+par(mfrow=c(2,1))
+plot(pib_mensal)
+plot(seas_pib_mensal)
+pib_mensal <- pib_mensaldessaz
+par(mfrow=c(1,1))
+
+
+
 # Extraindo hiato do produto
 pib_mensal.hp <- hpfilter(log(pib_mensal), freq = 12, type = 'frequency')
 

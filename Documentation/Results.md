@@ -6,6 +6,8 @@
 
 Talvez tentar incluir taxa de juros como uma variável de controle para a dinâmica entre inflação e taxa de câmbio.
 
+Precisa procurar um jeito de solucionar IRF de cambio estranha.
+
 ## Opções
 
 ### Lag Switching Variable 
@@ -95,7 +97,7 @@ Ambos não parecem ser boas proxys para a DA. Capacidade parece produzir resulta
 
 #### PIB
 
-Parece ser a melhor variável de DA. No entanto, RC fica alto em ambos os regimes. Melhores em lags maiores.
+Parece ser a melhor variável de DA. No entanto, RC fica alto em ambos os regimes. Melhores em lags maiores. Não resolve problemas das IRFs de desemprego com lag = 1.
 
 Melhores resultados com configurações:
 

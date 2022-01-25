@@ -37,7 +37,7 @@ gamma_transition = 3
 
 # Lags das variáveis endógenas
 # Escolhido endogenamento pelo criterio HQ
-lag_endog = 1
+lag_endog = 2
 
 # Lags das variáveis exógenas
 lag_exog = 1
@@ -76,9 +76,6 @@ model_trend = 0
 # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
 contemp_effect = 0
  
-# Lags das variáveis exógenas
-lag_exog = 1
-
 # Lags da variável de transição
 lag_switch_variable = T
 
@@ -96,24 +93,14 @@ comm_endo = T
 
 # Outras escolhas ####
 
-# Gamma da função de transição
-gamma_transition = 3
-
-# Lags das variáveis endógenas
-lag_endog = 1
-
 # Lags das variáveis exógenas
 lag_exog = 1
 
 # Variável de inflação externa
 ext_inflation = 'comm'
 
-# Incluir dummy da GFC
-include_gfc_dummy = F
-
 # Taxa de Desemprego em variação percentual
-desemprego_diff = T
-
+desemprego_diff = F
 
 # Rodando for loop para gerar os modelos ####
 # Caso interrompa loop
@@ -123,6 +110,9 @@ setwd(path_directory)
 # Lista de variáveis endógenas
 endo_list <- c('capacidade','pimpf','pib','pib_hiato')
 exo_list <- c('comm','petro')
+
+# Incluir dummy da GFC
+include_gfc_dummy = F
 
 # Lista de outras opções
 lags_option <- c(1:3)
@@ -144,14 +134,15 @@ for (i in first_loop){
     DA_variable = 'pib'
     ext_inflation = 'comm'
     gamma_transition = j
-    sig_IC = 95
+    sig_IC = 90
     nome_modelo = 'default'
+    desemprego_on = T
     
     try( source('Code/Model_Estimation.R', verbose = F), silent = T )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
       counter = counter + 1
-      print(paste0(counter*3," model(s) run!"))
+      print(paste0(counter," model(s) run!"))
     }
       loop_counter <- loop_counter + 1
     }

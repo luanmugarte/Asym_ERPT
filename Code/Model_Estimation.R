@@ -37,9 +37,11 @@ if (include_gfc_dummy == T & comm_endo == T) {
 } else if (include_gfc_dummy == T & comm_endo == F) {
   modelo_exog <- data.frame(ext_inflation_df,dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
   colnames(modelo_exog) <- c('ext_inflation', 'gfc_dummy')
-} else {
+} else if (include_gfc_dummy == F & comm_endo == F) {
   modelo_exog <- data.frame(ext_inflation_df)
   colnames(modelo_exog) <- 'ext_inflation'
+} else {
+  modelo_exog <- NULL
 }
 
 modelo_exog
@@ -56,61 +58,67 @@ if(lag_switch_variable == T){
 }
 
 if (desemprego_diff == T) {
-if (comm_endo == T) {
-  if (DA_variable == "pib_hiato") {
-    modelo_endo <- dados %>%
-      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
-      mutate(across(!c(ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-      mutate(across(c(all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
-      mutate(ipca = ipca/100) %>%
-      drop_na()
+  if (comm_endo == T) {
+    if (DA_variable == "pib_hiato") {
+      modelo_endo <- dados %>%
+        dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+        mutate(across(!c(ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+        mutate(across(c(all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
+        mutate(ipca = ipca/100) %>%
+        drop_na()
+    } else {
+      modelo_endo <- dados %>%
+        dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+        mutate(desemprego = (1+as.numeric(desemprego))) %>%
+        mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+        mutate(ipca = as.numeric(ipca)/100) %>%
+        drop_na()
+    }
   } else {
+    
     modelo_endo <- dados %>%
-      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+      dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
       mutate(desemprego = (1+as.numeric(desemprego))) %>%
       mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
       mutate(ipca = as.numeric(ipca)/100) %>%
       drop_na()
+    
   }
-} else {
-  
-  modelo_endo <- dados %>%
-    dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
-    mutate(desemprego = (1+as.numeric(desemprego))) %>%
-    mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-    mutate(ipca = as.numeric(ipca)/100) %>%
-    drop_na()
-  
-}
-} else {
-
-if (comm_endo == T) {
-  if (DA_variable == "pib_hiato") {
-  modelo_endo <- dados %>%
-    dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
-    mutate(across(!c(desemprego,ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-    mutate(across(c(desemprego,all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
-    mutate(ipca = ipca/100) %>%
-    drop_na()
   } else {
-  modelo_endo <- dados %>%
-    dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
-    mutate(across(!c(desemprego,ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-    mutate(desemprego = as.numeric(desemprego)) %>%
-    mutate(ipca = as.numeric(ipca)/100) %>%
-    drop_na()
+  
+  if (comm_endo == T) {
+    if (DA_variable == "pib_hiato") {
+    modelo_endo <- dados %>%
+      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+      mutate(across(!c(desemprego,ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(across(c(desemprego,all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
+      mutate(ipca = ipca/100) %>%
+      drop_na()
+    } else {
+    modelo_endo <- dados %>%
+      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+      mutate(across(!c(desemprego,ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(desemprego = as.numeric(desemprego)) %>%
+      mutate(ipca = as.numeric(ipca)/100) %>%
+      drop_na()
+    }
+  } else {
+    
+    modelo_endo <- dados %>%
+      dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
+      mutate(across(!c(ipca,desemprego), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(ipca = as.numeric(ipca)/100) %>%
+      mutate(desemprego = as.numeric(desemprego)) %>%
+      drop_na()
+    
   }
-} else {
-  
-  modelo_endo <- dados %>%
-    dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
-    mutate(across(!c(ipca,desemprego), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-    mutate(ipca = as.numeric(ipca)/100) %>%
-    mutate(desemprego = as.numeric(desemprego)) %>%
-    drop_na()
-  
 }
+
+if (desemprego_on == F) {
+  modelo_endo <- modelo_endo %>%
+    dplyr::select(!desemprego)
 }
+
 modelo_endo
 modelo_exog
 
@@ -182,32 +190,11 @@ nome_modelo
 # Seleção de defasagem ótima
 VARselect(modelo_endo)
 
-# lag_endog <- VARselect(modelo_endo)$selection[2]
-
 lag <- stats::lag
 # Estimando as projeções locais ####
 
 # Parâmetros e configurações
-if (comm_endo == T) {
-  results_nl <- lp_nl(
-    modelo_endo, # Variáveis endógenas
-    lags_endog_lin = lag_endog, # Lags do modelo
-    lags_endog_nl = lag_endog, # Lags do modelo
-    shock_type = 0, # Tipo de choque: no caso, 0 é de 1 desvio padrão
-    confint = sig_conf_int, # Intervalo de confiança de 95%
-    use_nw = T, # Usar erros padrão de Newey-West para as respostas ao impulso (correção de viés)
-    hor = hor_lps, # Horizonte para as LP
-    switching = cambio_switching, # Definição da série de transição
-    lag_switching = lag_switch_variable, # Uso da variável de transição de forma defasada
-    use_hp = T, # Usar filtro de HP para decompor 
-    lambda = lambda_hp, # Lambda para o filtro HP, 14400 é mensal
-    trend = model_trend, # Sem variável de tendência
-    gamma = gamma_transition, # Definição de gamma para a função de transição
-    contemp_data = NULL, # Variáveis exógenas com efeito contemporâneo
-    exog_data = NULL, # Variáveis exógenas com efeitos defasados
-    lags_exog = NULL # Lags das variáveis exógenas
-    )
-} else {
+if (comm_endo == T | include_gfc_dummy == T) {
   results_nl <- lp_nl(
     modelo_endo, # Variáveis endógenas
     lags_endog_lin = lag_endog, # Lags do modelo
@@ -225,6 +212,25 @@ if (comm_endo == T) {
     contemp_data = contemp_effect_lp, # Variáveis exógenas com efeito contemporâneo
     exog_data = modelo_exog, # Variáveis exógenas com efeitos defasados
     lags_exog = lag_exog # Lags das variáveis exógenas
+    )
+} else {
+  results_nl <- lp_nl(
+    modelo_endo, # Variáveis endógenas
+    lags_endog_lin = lag_endog, # Lags do modelo
+    lags_endog_nl = lag_endog, # Lags do modelo
+    shock_type = 0, # Tipo de choque: no caso, 0 é de 1 desvio padrão
+    confint = sig_conf_int, # Intervalo de confiança de 95%
+    use_nw = T, # Usar erros padrão de Newey-West para as respostas ao impulso (correção de viés)
+    hor = hor_lps, # Horizonte para as LP
+    switching = cambio_switching, # Definição da série de transição
+    lag_switching = lag_switch_variable, # Uso da variável de transição de forma defasada
+    use_hp = T, # Usar filtro de HP para decompor 
+    lambda = lambda_hp, # Lambda para o filtro HP, 14400 é mensal
+    trend = model_trend, # Sem variável de tendência
+    gamma = gamma_transition, # Definição de gamma para a função de transição
+    contemp_data = NULL, # Variáveis exógenas com efeito contemporâneo
+    exog_data = NULL, # Variáveis exógenas com efeitos defasados
+    lags_exog = NULL # Lags das variáveis exógenas
 )
 }
 
@@ -236,6 +242,6 @@ if (comm_endo == T) {
 #######################################################################
 
 # Exportando figuras ####
-source('Code/Graphs_results_v4.R', verbose = F, echo = F)
+source('Code/Plot_results.R', verbose = F, echo = F)
 nome_modelo
 
