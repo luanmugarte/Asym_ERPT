@@ -77,7 +77,7 @@ roots(var_modelo)
 model_trend = 0
 
 # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
-contemp_effect = 0
+contemp_effect = 1
  
 # Lags da variável de transição
 lag_switch_variable = T
@@ -115,7 +115,7 @@ endo_list <- c('capacidade','pimpf','pib','pib_hiato')
 exo_list <- c('comm','petro')
 
 # Incluir dummy da GFC
-include_gfc_dummy = F
+include_gfc_dummy = T
 
 # Lista de outras opções
 lags_option <- c(1:3)
@@ -135,7 +135,7 @@ for (i in first_loop){
     
     lag_endog = i
     DA_variable = 'pib'
-    ext_inflation = 'comm'
+    ext_inflation = 'petro'
     gamma_transition = j
     sig_IC = 90
     nome_modelo = 'default'
