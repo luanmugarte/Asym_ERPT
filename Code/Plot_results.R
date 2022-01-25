@@ -648,11 +648,11 @@ plot_IRFs_5_variables <- function() {
   results_nl$irf_s1_mean[response,,cambio_shock]
 }
 
-# Resultados
+# Exportando os resultados ####
 if (comm_endo == T & desemprego_on == T) {
-  plot_IRFs_comm_endo()
-} else if ((comm_endo == T & desemprego_on == F) | (comm_endo == F | desemprego_on == T)) {
-  plot_IRFs_comm_exo()
+  plot_IRFs_4_variables()
+  } else if ((comm_endo == T & desemprego_on == F) | (comm_endo == F | desemprego_on == T)) {
+  plot_IRFs_5_variables()
 } else {
   print('Model with only 3 variables not available!')
 }

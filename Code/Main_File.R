@@ -54,6 +54,9 @@ include_gfc_dummy = T
 # Intervalo de confiança das IRFs
 sig_IC = 95
 
+# Incluir taxa de desemprego?
+desemprego_on = T
+
 # Taxa de Desemprego em variação percentual
 desemprego_diff = F
 
