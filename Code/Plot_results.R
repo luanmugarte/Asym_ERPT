@@ -14,14 +14,15 @@ ifelse(!dir.exists(file.path('Output/Figures', nome_modelo)),
 setwd(file.path('Output/Figures/', nome_modelo))
 nome_modelo
 modelo_endo
+nome_modelo <- stringr::str_replace(nome_modelo,'V4','')
 
 #---------------------------------------------------------------------#
 #                                                                     #
 #                     Função de Transição                             #
 #                                                                     #
 #------------------------------------------------------------------####
-
-
+nrow(dados)
+length(results_nl$fz)
 
 # Elabora o gráfico da função de transição da estimação
 
@@ -29,9 +30,9 @@ modelo_endo
 # Regime 2 é a probabilidade do evento da variável de transição. 
 
 if (modelo == 'mensal') {
-  transition_function <- as.xts(ts(results_nl$fz, start = c(1999,8), end = c(2020,2), frequency = 12))
+  transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2020,2), frequency = 12))
 } else {
-  transition_function <- as.xts(ts(results_nl$fz, start = c(1999,4), end = c(2019,4), frequency = 4))
+  transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2019,4), frequency = 4))
 }
 
 transition_function["2002:10"]
@@ -62,9 +63,9 @@ if (modelo == 'mensal') {
 modelo
 
 if (modelo == "mensal") {
-  date <- date[(max(c(lag_endog,lag_exog))+1):length(date)]
+  date <- date[(max(c(lag_endog,lag_exog))):(length(date)-1)]
 } else {
-  date <- date[(max(c(lag_endog,lag_exog))+2):length(date)]
+  date <- date[(max(c(lag_endog,lag_exog))):(length(date)-2)]
 }
 
 length(date)
@@ -85,8 +86,8 @@ df
 # Plotando o gráfico da função de transição
 ggplot(df)  + 
   geom_line(aes(x=date, y=transition_function), size = 0.75, color = 'darkred') +
-  scale_x_continuous(breaks=seq(1999.5,2020,0.5),                       
-                     labels=paste(c("Jun",'Jan'),c(1999,rep(2000:2019,each=2),2020)),expand = c(0, 0)) +
+  scale_x_continuous(breaks=seq(2000,2020.23,0.5),                       
+                     labels=paste0(c("Jan ",'Jun '),c(rep(2000:2019,each=2),2020)),expand = c(0, 0)) +
   labs(title = paste0('Função de Transição - ',regime_2)) +
   scale_fill_brewer(palette="Blues") +
   ylab('') +
@@ -104,7 +105,9 @@ ggplot(df)  +
           axis.text.y = element_text(size=12,face = 'bold')) 
 
 ggsave(paste0('Funcao_Transicao','.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
-
+plot(cambio)
+length(seq(2000.33,2020.23,0.5))
+length(paste(c("Jun",'Jan'),c(rep(2000:2019,each=2),2020)))
 
 # Funções de Impulso Resposta com comm exógena (4 gráficos de IRFs) ####
 plot_IRFs_4_variables <- function() {
@@ -129,7 +132,10 @@ plot_IRFs_4_variables <- function() {
       IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
                                  results_nl$irf_s1_up[response,,i],
                                  results_nl$irf_s1_low[response,,i]),
-                       .name_repair = ~ c('IRF','IRF_upper','IRF_lower')))
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
              error = function(error_in_function){
                message("Error in tibble!")
@@ -187,7 +193,10 @@ plot_IRFs_4_variables <- function() {
       IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
                                  results_nl$irf_s2_up[response,,i],
                                  results_nl$irf_s2_low[response,,i]),
-                       .name_repair = ~ c('IRF','IRF_upper','IRF_lower')))
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
       message("Error in tibble!")
@@ -399,7 +408,10 @@ plot_IRFs_5_variables <- function() {
       IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
                                  results_nl$irf_s1_up[response,,i],
                                  results_nl$irf_s1_low[response,,i]),
-                       .name_repair = ~ c('IRF','IRF_upper','IRF_lower')))
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
       message("Error in tibble!")
@@ -457,7 +469,10 @@ plot_IRFs_5_variables <- function() {
       IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
                                  results_nl$irf_s2_up[response,,i],
                                  results_nl$irf_s2_low[response,,i]),
-                       .name_repair = ~ c('IRF','IRF_upper','IRF_lower')))
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
       message("Error in tibble!")
@@ -643,16 +658,14 @@ plot_IRFs_5_variables <- function() {
   
   ggsave(paste0('RC_Belaisch','.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
-  cumsum((results_nl$irf_s2_mean[cambio_shock,,response]))
-  cumsum((results_nl$irf_s1_mean[cambio_shock,,response]))       
-  results_nl$irf_s1_mean[response,,cambio_shock]
+
 }
 
 # Exportando os resultados ####
 if (comm_endo == T & desemprego_on == T) {
-  plot_IRFs_4_variables()
-  } else if ((comm_endo == T & desemprego_on == F) | (comm_endo == F | desemprego_on == T)) {
   plot_IRFs_5_variables()
+  } else if ((comm_endo == T & desemprego_on == F) | (comm_endo == F | desemprego_on == T)) {
+  plot_IRFs_4_variables()
 } else {
   print('Model with only 3 variables not available!')
 }
@@ -660,3 +673,4 @@ if (comm_endo == T & desemprego_on == T) {
 # Necessário para retornar ao diretório padrão, principalmente caso for rodar vários modelos
 path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
 setwd(path_directory)
+

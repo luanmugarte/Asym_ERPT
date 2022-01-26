@@ -70,9 +70,7 @@ pimpfantiga <- ts(pimpfantiga*(pimpf[1]/pimpfantiga[37]), start = c(1999,1), fre
 pimpfantiga[37:48]
 
 # Criando série unificada
-pimpf <- ts(c(pimpfantiga[7:36],pimpf[1:length(pimpf)]), start = c(1999,7), end = c(2020,2), frequency = 12)
-
-
+pimpf <- ts(c(pimpfantiga[13:36],pimpf[1:length(pimpf)]), start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # Vendo as séries
 ipcaindice[1,]
@@ -87,41 +85,41 @@ pimpf[1]
 
 # Convertendo em objetos ts - Período: 07/1999 - 02/2020 ####
 
-ipca <- ts((ipca[7:nrow(ipca),2]), start = c(1999,7), end = c(2020,2), frequency = 12)
+ipca <- ts((ipca[13:nrow(ipca),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IPCA - Índice
-ipcaindice <- ts((ipcaindice[7:nrow(ipcaindice),2]), start = c(1999,7), end = c(2020,2), frequency = 12)
+ipcaindice <- ts((ipcaindice[13:nrow(ipcaindice),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # Cambio
-cambio <- (ts(cambiocompleto[7:nrow(cambiocompleto),2], start = c(1999,7),  end = c(2020,2), frequency = 12))
+cambio <- (ts(cambiocompleto[13:nrow(cambiocompleto),2], start = c(2000,1),  end = c(2020,2), frequency = 12))
 
 # Commodities
-comm <- ts((comm[7:nrow(comm),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
+comm <- ts((comm[13:nrow(comm),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # Utilizacao de capacidade
-capacidade <- ts((capacidade[91:nrow(capacidade),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
+capacidade <- ts((capacidade[97:nrow(capacidade),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # Taxa de desemprego
-desemprego <- ts(desemprego[19:nrow(desemprego),2], start = c(1999,7), end = c(2020,2), frequency = 12)
+desemprego <- ts(desemprego[25:nrow(desemprego),2], start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IGP
-igp <- ts((igp[71:nrow(igp),2]), start = c(1999,7), end = c(2020,2), frequency = 12)
+igp <- ts((igp[77:nrow(igp),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IPA
-ipa <- ts((ipa[71:nrow(ipa),2]), start = c(1999,7), end = c(2020,2), frequency = 12)
+ipa <- ts((ipa[77:nrow(ipa),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IPCA - Alimentos e Bebidas
-ipca_alimbebs <- ts((ipcadecomp[8:nrow(ipcadecomp),3]), start = c(1999,7), end = c(2020,2), frequency = 12)
+ipca_alimbebs <- ts((ipcadecomp[14:nrow(ipcadecomp),3]), start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # Petroleo
-petro <- ts((petro[1:nrow(petro),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
+petro <- ts((petro[7:nrow(petro),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # PIB mensal
-pib_mensal <- ts((pib_mensal[1:nrow(pib_mensal),2]),  start = c(1999,7), end = c(2020,2), frequency = 12)
+pib_mensal <- ts((pib_mensal[7:nrow(pib_mensal),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
 
-# Dummy para a GFC
-gfc_dummy <- tibble(seq(from = as.Date("1999-07-01"), to = as.Date("2020-02-01"), by = 'month'), .name_repair = ~c("date")) %>%
-  mutate(dummy = ifelse(((date > "2008-08-01") & (date < "2009-08-01")), 1,0)) %>%
+# Dummy para a GFC (começa em julho porque é incluida defasada no modelo)
+gfc_dummy <- tibble(seq(from = as.Date("2000-01-01"), to = as.Date("2020-02-01"), by = 'month'), .name_repair = ~c("date")) %>%
+  mutate(dummy = ifelse(((date > "2008-07-01") & (date < "2009-07-01")), 1,0)) %>%
   dplyr::select(dummy)
 gfc_dummy
 
@@ -140,7 +138,6 @@ plot.ts(pimpf)
 
 #### Dessazonalizando as séries ####
 
-# if (dessaz == T ){
 # IPCA
 ipca
 monthplot(ipca)
@@ -195,8 +192,7 @@ plot(seas_pimpf)
 pimpf <- pimpfdessaz
 par(mfrow=c(1,1))
 
-# PIB
-pib_mensal_2 <- pib_mensal
+# # PIB
 pib_mensal
 monthplot(pib_mensal)
 seas_pib_mensal <- seas(x = pib_mensal)
@@ -208,28 +204,11 @@ pib_mensaldessaz <- series(seas_pib_mensal, "s11")
 par(mfrow=c(2,1))
 plot(pib_mensal)
 plot(seas_pib_mensal)
-pib_mensal <- pib_mensaldessaz
 par(mfrow=c(1,1))
 
-pib_mensal_2 <- diff(log(pib_mensal_2))
-monthplot(pib_mensal_2)
-seas_pib_mensal_2 <- seas(x = pib_mensal_2)
-summary(seas_pib_mensal_2)
-
-seasonal::qs(seas_pib_mensal_2)
-
-pib_mensal_2dessaz <- series(seas_pib_mensal_2, "s11")
-par(mfrow=c(2,1))
-plot(pib_mensal_2)
-plot(seas_pib_mensal_2)
-pib_mensal_2 <- pib_mensal_2dessaz
-par(mfrow=c(1,1))
-# }
-plot.ts(diff(log(pib_mensal))[2:248])
-plot.ts(pib_mensal_2)
 
 # Extraindo hiato do produto
-pib_mensal.hp <- hpfilter(log(pib_mensal), freq = 12, type = 'frequency')
+pib_mensal.hp <- hpfilter(log(pib_mensaldessaz), freq = 12, type = 'frequency')
 
 par(mfrow=c(2,1))
 plot(pib_mensal.hp$trend)
@@ -263,7 +242,7 @@ length(pib_hiato)
 
 # Coluna de data
 
-date <- seq(from = as.Date("1999-07-01"), to = as.Date("2020-02-01"), by = 'month')
+date <- seq(from = as.Date("2000-01-01"), to = as.Date("2020-02-01"), by = 'month')
 
 length(date)
 
@@ -284,6 +263,7 @@ dadosbrutos <- tibble(date,
                       gfc_dummy,
                       pib_mensal,
                       pib_hiato,
+                      pib_mensaldessaz,
                        .name_repair = ~  c("date",
                                            "ipca",
                                            'ipa',
@@ -297,7 +277,8 @@ dadosbrutos <- tibble(date,
                                            "petro",
                                            "gfc_dummy",
                                            'pib',
-                                           'pib_hiato'
+                                           'pib_hiato',
+                                           'pib_dessaz'
                                            ))
 
 
@@ -309,26 +290,26 @@ dadosbrutos <- tibble(date,
 
 # PIB real trimestral
 pib <- read_excel('Data/Analytic/pib_real.xlsx', col_names = c('data','pib'))
-pib <- ts(pib[3:nrow(pib),2], start = c(1999,4), end = c(2019,4), frequency = 4)
+pib <- ts(pib[4:nrow(pib),2], start = c(2000,1), end = c(2019,4), frequency = 4)
 pib
 
 
 # Hiato do produto (IPEA)
 pib_hiato <- read_excel('Data/Analytic/hiatodoproduto.xlsx', col_names = c('data','hiato'))
-pib_hiato <- ts(pib_hiato[29:nrow(pib_hiato),2],  start = c(1999,4), end = c(2019,4), frequency = 4) 
+pib_hiato <- ts(pib_hiato[30:nrow(pib_hiato),2],  start = c(2000,1), end = c(2019,4), frequency = 4) 
 
-# Transformando em objetos xts e reajustando para que os trimestre comecem em outubro e terminem em dezembro de 2019 ####
+# Transformando em objetos xts e reajustando para que os trimestres terminem em dezembro de 2019 ####
 
-ipca <- as.xts(ipca)[4:(length(ipca)-2)]
-igp <- as.xts(igp)[4:(length(igp)-2)]
-ipa <- as.xts(ipa)[4:(length(ipa)-2)]
-cambio <- as.xts(cambio)[4:(length(cambio)-2)]
-capacidade <- as.xts(capacidade)[4:(length(capacidade)-2)]
-comm <- as.xts(comm)[4:(length(comm)-2)]
-pimpf <- as.xts(pimpf)[4:(length(pimpf)-2)]
-desemprego <- as.xts(desemprego)[4:(length(desemprego)-2)]
-ipcaindice <- as.xts(ipcaindice)[4:(length(ipcaindice)-2)]
-petro <- as.xts(petro)[4:(length(petro)-2)]
+ipca <- as.xts(ipca)[1:(length(ipca)-2)]
+igp <- as.xts(igp)[1:(length(igp)-2)]
+ipa <- as.xts(ipa)[1:(length(ipa)-2)]
+cambio <- as.xts(cambio)[1:(length(cambio)-2)]
+capacidade <- as.xts(capacidade)[1:(length(capacidade)-2)]
+comm <- as.xts(comm)[1:(length(comm)-2)]
+pimpf <- as.xts(pimpf)[1:(length(pimpf)-2)]
+desemprego <- as.xts(desemprego)[1:(length(desemprego)-2)]
+ipcaindice <- as.xts(ipcaindice)[1:(length(ipcaindice)-2)]
+petro <- as.xts(petro)[1:(length(petro)-2)]
 pib_hiato <- as.xts(pib_hiato)
 pib <- as.xts(pib)
 
@@ -344,7 +325,7 @@ desemprego_trim <- apply.quarterly(desemprego, mean)
 ipcaindice_trim <- apply.quarterly(ipcaindice, mean)
 petro_trim <- apply.quarterly(petro, mean)
 
-date_trim <- seq(from = as.Date("1999-10-01"), to = as.Date("2019-12-01"), by = 'quarter')
+date_trim <- seq(from = as.Date("2000-01-01"), to = as.Date("2019-12-01"), by = 'quarter')
 
 # Exportando os dados ####
 

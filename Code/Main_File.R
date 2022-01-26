@@ -6,7 +6,7 @@
 
 
 # Caminho para o diretório padrão ####
-
+# rm(list=ls())
 path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
 setwd(path_directory)
 
@@ -37,19 +37,19 @@ gamma_transition = 3
 
 # Lags das variáveis endógenas
 # Escolhido endogenamento pelo criterio HQ
-lag_endog = 2
+lag_endog = 1
 
 # Lags das variáveis exógenas
 lag_exog = 1
 
 # Variável de inflação externa
-ext_inflation = 'petro'
+ext_inflation = 'comm'
 
 # Lags da variável de transição
 lag_switch_variable = T
 
 # Incluir dummy da GFC
-include_gfc_dummy = T
+include_gfc_dummy = F
 
 # Intervalo de confiança das IRFs
 sig_IC = 95
@@ -60,16 +60,14 @@ desemprego_on = T
 # Taxa de Desemprego em variação percentual
 desemprego_diff = F
 
-
 # Rodando código de estimação
-
 source('Code/Model_Estimation.R', verbose = F)
 
-modelo_endo
 VARselect(modelo_endo)
 nome_modelo
 var_modelo <- VAR(modelo_endo, p = 1)
 roots(var_modelo)
+
 # Rodando vários modelos ####
 
 # Escolhas consolidadas ####
@@ -77,7 +75,7 @@ roots(var_modelo)
 model_trend = 0
 
 # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
-contemp_effect = 1
+contemp_effect = 0
  
 # Lags da variável de transição
 lag_switch_variable = T
@@ -115,11 +113,11 @@ endo_list <- c('capacidade','pimpf','pib','pib_hiato')
 exo_list <- c('comm','petro')
 
 # Incluir dummy da GFC
-include_gfc_dummy = T
+include_gfc_dummy = F
 
 # Lista de outras opções
 lags_option <- c(1:3)
-gamma_option <- c(3:6)
+gamma_option <- c(3:5)
 CI_option <- c(90,95)
 
 # Contador simples
@@ -135,12 +133,15 @@ for (i in first_loop){
     
     lag_endog = i
     DA_variable = 'pib'
-    ext_inflation = 'petro'
+    ext_inflation = 'comm'
     gamma_transition = j
-    sig_IC = 90
+    sig_IC = 95
     nome_modelo = 'default'
-    desemprego_on = T
+    desemprego_on = F
+    desemprego_diff = F
     
+    try( source('Code/Model_Estimation.R', verbose = F), silent = T )
+    sig_IC = 90
     try( source('Code/Model_Estimation.R', verbose = F), silent = T )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
@@ -155,3 +156,8 @@ for (i in first_loop){
       
 }
 
+
+VARselect(modelo_endo, lag.max = 24)
+nome_modelo
+var_modelo <- VAR(modelo_endo, p = 2)
+roots(var_modelo)
