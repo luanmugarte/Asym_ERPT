@@ -85,7 +85,7 @@ pimpf[1]
 
 # Convertendo em objetos ts - Período: 07/1999 - 02/2020 ####
 
-ipca <- ts((ipca[13:nrow(ipca),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+ipca <- ts((ipca[13:nrow(ipca),2])/100, start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IPCA - Índice
 ipcaindice <- ts((ipcaindice[13:nrow(ipcaindice),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
@@ -103,10 +103,10 @@ capacidade <- ts((capacidade[97:nrow(capacidade),2]),  start = c(2000,1), end = 
 desemprego <- ts(desemprego[25:nrow(desemprego),2], start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IGP
-igp <- ts((igp[77:nrow(igp),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+igp <- ts(diff(log(igp[,2]))[77:nrow(igp)], start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IPA
-ipa <- ts((ipa[77:nrow(ipa),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+ipa <- ts(diff(log(ipa[,2]))[77:nrow(ipa)], start = c(2000,1), end = c(2020,2), frequency = 12)
 
 # IPCA - Alimentos e Bebidas
 ipca_alimbebs <- ts((ipcadecomp[14:nrow(ipcadecomp),3]), start = c(2000,1), end = c(2020,2), frequency = 12)

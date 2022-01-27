@@ -79,26 +79,23 @@ if (desemprego_diff == T) {
   if (comm_endo == T) {
     if (DA_variable == "pib_hiato") {
       modelo_endo <- dados %>%
-        dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
-        mutate(across(!c(ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-        mutate(across(c(all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
-        mutate(ipca = ipca/100) %>%
+        dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,all_of(inflation_index)) %>%
+        mutate(across(!c(all_of(inflation_index),all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+        mutate(across(c(all_of(DA_variable),all_of(inflation_index)), ~ as.numeric(.))) %>%
         drop_na()
     } else {
       modelo_endo <- dados %>%
-        dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
+        dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,all_of(inflation_index)) %>%
         mutate(desemprego = (1+as.numeric(desemprego))) %>%
-        mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-        mutate(ipca = as.numeric(ipca)/100) %>%
+        mutate(across(!c(all_of(inflation_index)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
         drop_na()
     }
   } else {
     
     modelo_endo <- dados %>%
-      dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
+      dplyr::select(cambio, all_of(DA_variable), desemprego, all_of(inflation_index)) %>%
       mutate(desemprego = (1+as.numeric(desemprego))) %>%
-      mutate(across(!c(ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-      mutate(ipca = as.numeric(ipca)/100) %>%
+      mutate(across(!c(all_of(inflation_index)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
       drop_na()
     
   }
@@ -107,26 +104,23 @@ if (desemprego_diff == T) {
   if (comm_endo == T) {
     if (DA_variable == "pib_hiato") {
     modelo_endo <- dados %>%
-      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
-      mutate(across(!c(desemprego,ipca,all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-      mutate(across(c(desemprego,all_of(DA_variable),ipca), ~ as.numeric(.))) %>%
-      mutate(ipca = ipca/100) %>%
+      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,all_of(inflation_index)) %>%
+      mutate(across(!c(desemprego,all_of(inflation_index),all_of(DA_variable)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(across(c(desemprego,all_of(DA_variable),all_of(inflation_index)), ~ as.numeric(.))) %>%
       drop_na()
     } else {
     modelo_endo <- dados %>%
-      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,ipca) %>%
-      mutate(across(!c(desemprego,ipca), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-      mutate(across(c(desemprego,ipca), ~ as.numeric(.))) %>%
-      mutate(ipca = ipca/100) %>%
+      dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),desemprego,all_of(inflation_index)) %>%
+      mutate(across(!c(desemprego,all_of(inflation_index)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(across(c(desemprego,all_of(inflation_index)), ~ as.numeric(.))) %>%
       drop_na()
     }
   } else {
     
     modelo_endo <- dados %>%
-      dplyr::select(cambio, all_of(DA_variable), desemprego, ipca) %>%
-      mutate(across(!c(ipca,desemprego), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
-      mutate(across(c(desemprego,ipca), ~ as.numeric(.))) %>%
-      mutate(ipca = ipca/100) %>%
+      dplyr::select(cambio, all_of(DA_variable), desemprego, all_of(inflation_index)) %>%
+      mutate(across(!c(all_of(inflation_index),desemprego), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+      mutate(across(c(desemprego,all_of(inflation_index)), ~ as.numeric(.))) %>%
       drop_na()
     
   }
@@ -141,7 +135,7 @@ modelo_endo
 modelo_exog
 
 # Definição dos choques e respostas ####
-response <- grep('ipca', colnames(modelo_endo))
+response <- grep(inflation_index, colnames(modelo_endo))
 cambio_shock <- grep('cambio', colnames(modelo_endo))
 
 # Significancia do IC
@@ -168,7 +162,11 @@ if (model_trend == 1){
 } else {
   name_trend = 'notrend'
 }
-
+if (include_gfc_dummy == T) {
+  dummy_gfc = 'GFC'
+} else {
+  dummy_gfc = ''
+}
 
 
 if (comm_endo == T) {
@@ -176,6 +174,7 @@ if (comm_endo == T) {
                        '_exo',
                        '[',
                        name_trend,
+                       dummy_gfc,
                        ']_endo[',
                        ext_inflation,
                        '_',
@@ -192,6 +191,7 @@ nome_modelo = paste0(toupper(modelo),
                      ext_inflation,
                      paste0('(',as.character(lag_exog),')_'),
                      name_trend,
+                     dummy_gfc,
                      ']_endo[',
                      DA_variable,
                      paste0('(',as.character(lag_endog),')]'),
@@ -255,4 +255,4 @@ results_nl <- lp_nl(
 #######################################################################
 
 # Exportando figuras ####
-source('Code/Plot_results.R', verbose = F, echo = F)
+source('Code/Plot_results_RC.R', verbose = F, echo = F)

@@ -19,6 +19,9 @@ comm_endo = T
 # Frequência (mensal ou trim)
 modelo = 'mensal'
 
+# Índice de inflação
+inflation_index = 'ipca'
+
 # Tendência (1) ou sem tendência (0)
 model_trend = 0
 
@@ -78,7 +81,7 @@ model_trend = 0
 contemp_effect = 0
  
 # Lags da variável de transição
-lag_switch_variable = T
+lag_switch_variable = F
 
 # Frequência (mensal ou trim)
 modelo = 'mensal'
@@ -104,20 +107,20 @@ ext_inflation = 'comm'
 desemprego_diff = F
 
 # Rodando for loop para gerar os modelos ####
-# Caso interrompa loop
-path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
-setwd(path_directory)
 
 # Lista de variáveis endógenas
 endo_list <- c('capacidade','pimpf','pib','pib_hiato')
 exo_list <- c('comm','petro')
 
+# Índice de inflação
+inflation_index = 'ipca'
+
 # Incluir dummy da GFC
 include_gfc_dummy = F
 
 # Lista de outras opções
-lags_option <- c(1:3)
-gamma_option <- c(3:5)
+lags_option <- c(1:2)
+gamma_option <- c(3,6,9)
 CI_option <- c(90,95)
 
 # Contador simples
@@ -130,6 +133,10 @@ second_loop <- gamma_option
 
 for (i in first_loop){
   for (j in second_loop) {
+    # Caso interrompa loop
+    path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
+    setwd(path_directory)
+    
     
     lag_endog = i
     DA_variable = 'pib'
@@ -137,11 +144,10 @@ for (i in first_loop){
     gamma_transition = j
     sig_IC = 95
     nome_modelo = 'default'
-    desemprego_on = F
-    desemprego_diff = F
+    desemprego_on = T
+    desemprego_diff = T
+    include_gfc_dummy = T
     
-    try( source('Code/Model_Estimation.R', verbose = F), silent = T )
-    sig_IC = 90
     try( source('Code/Model_Estimation.R', verbose = F), silent = T )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
