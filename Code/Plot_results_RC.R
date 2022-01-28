@@ -383,7 +383,7 @@ plot_IRFs_4_variables <- function() {
     draw_plot(RC_r1_plot, x = 0, y = 0.5, height = .5, width = 1) +
     draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
   
-  ggsave(paste0('RC_Belaisch','.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   # Final da função
 }
@@ -656,7 +656,7 @@ plot_IRFs_5_variables <- function() {
     draw_plot(RC_r1_plot, x = 0, y = 0.5, height = .5, width = 1) +
     draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
   
-  ggsave(paste0('RC_Belaisch','.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
 
 }
@@ -669,6 +669,35 @@ if (comm_endo == T & desemprego_on == T) {
 } else {
   print('Model with only 3 variables not available!')
 }
+
+# Exportando dados das configurações do modelo rodado
+config_list <- c(modelo = modelo,
+                 DA_variable = DA_variable,
+                 comm_endo = comm_endo,
+                 inflation_index = inflation_index,
+                 model_trend = model_trend,
+                 contemp_effect = contemp_effect,
+                 lag_endog = lag_endog,
+                 lag_exog = lag_exog,
+                 ext_inflation = ext_inflation,
+                 lag_switch_variable = lag_switch_variable,
+                 gamma_transition = gamma_transition,
+                 include_gfc_dummy = include_gfc_dummy,
+                 sig_IC = sig_IC,
+                 desemprego_on = desemprego_on,
+                 desemprego_diff = desemprego_diff,
+                 desemprego_exog = desemprego_exog,
+                 hor_lps = hor_lps
+                 )
+
+config_list <- data.frame(config_list)
+
+output_without_message <- capture.output(stargazer(stargazer(config_list,
+                                                             summary = FALSE,
+                                                             type = "text",
+                                                             out = paste0("config_",stringr::str_to_upper(inflation_index),".txt"))
+))
+
 
 # Necessário para retornar ao diretório padrão, principalmente caso for rodar vários modelos
 path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'

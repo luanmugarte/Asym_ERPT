@@ -20,7 +20,7 @@ comm_endo = T
 modelo = 'mensal'
 
 # Índice de inflação
-inflation_index = 'ipca'
+inflation_index = 'igp'
 
 # Tendência (1) ou sem tendência (0)
 model_trend = 0
@@ -81,7 +81,7 @@ model_trend = 0
 contemp_effect = 0
  
 # Lags da variável de transição
-lag_switch_variable = F
+lag_switch_variable = T
 
 # Frequência (mensal ou trim)
 modelo = 'mensal'
@@ -111,9 +111,9 @@ desemprego_diff = F
 # Lista de variáveis endógenas
 endo_list <- c('capacidade','pimpf','pib','pib_hiato')
 exo_list <- c('comm','petro')
-
+dados
 # Índice de inflação
-inflation_index = 'ipca'
+inflation_index = 'ipa'
 
 # Incluir dummy da GFC
 include_gfc_dummy = F
@@ -122,14 +122,16 @@ include_gfc_dummy = F
 lags_option <- c(1:2)
 gamma_option <- c(3,6,9)
 CI_option <- c(90,95)
+inflation_index_option <- c('ipca','igp','ipa')
+DA_variable_option <- c('pib','pimpf','capacidade')
 
 # Contador simples
 counter <- 0
 loop_counter <- 0
 
 # Código do for loop
-first_loop <- lags_option
-second_loop <- gamma_option
+first_loop <- inflation_index_option
+second_loop <- DA_variable_option
 
 for (i in first_loop){
   for (j in second_loop) {
@@ -138,17 +140,19 @@ for (i in first_loop){
     setwd(path_directory)
     
     
-    lag_endog = i
-    DA_variable = 'pib'
+    lag_endog = 2
+    DA_variable = j
     ext_inflation = 'comm'
-    gamma_transition = j
+    gamma_transition = 9
     sig_IC = 95
     nome_modelo = 'default'
-    desemprego_on = T
-    desemprego_diff = T
+    desemprego_on = F
+    desemprego_exog = T
+    desemprego_diff = F
     include_gfc_dummy = T
-    
-    try( source('Code/Model_Estimation.R', verbose = F), silent = T )
+    inflation_index = i
+
+    try( source('Code/Model_Estimation.R', verbose = F), silent = F )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
       counter = counter + 1

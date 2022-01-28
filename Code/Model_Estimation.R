@@ -41,7 +41,7 @@ if (include_gfc_dummy == T & comm_endo == T) {
 } else if (include_gfc_dummy == T & comm_endo == F) {
   # Caso em que há dummy e inflação externa como variáveis exógenas
   modelo_exog <- data.frame(ext_inflation_df,dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
-  colnames(modelo_exog) <- 'gfc_dummy'
+  colnames(modelo_exog) <- c(ext_inflation,'gfc_dummy')
   contemp_effect_lp <- NULL
   lag_exog <- 1
 } else if (include_gfc_dummy == F & comm_endo == F) {
@@ -126,10 +126,17 @@ if (desemprego_diff == T) {
   }
 }
 
-if (desemprego_on == F) {
+if (desemprego_on == F & desemprego_exog == F) {
   modelo_endo <- modelo_endo %>%
     dplyr::select(!desemprego)
+} else if (desemprego_on == F & desemprego_exog == T) {
+  modelo_endo <- modelo_endo %>%
+    dplyr::select(!desemprego)
+  modelo_exog$desemprego <- dadosbrutos$desemprego[2:length(dadosbrutos$desemprego)]
+  contemp_effect_lp <- NULL
+  lag_exog <- 1
 }
+
 
 modelo_endo
 modelo_exog
