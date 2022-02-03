@@ -95,9 +95,9 @@ comm_endo = T
 
 # Variável de inflação externa
 ext_inflation = 'comm'
-
-# Variável endógena
-DA_variable = 'pib_dessaz'
+ 
+# # Variável endógena
+# DA_variable = 'pib_dessaz'
 
 # Índice de inflação
 inflation_index = 'ipca'
@@ -108,23 +108,23 @@ lag_exog = 1
 # Outras escolhas ####
 
 # Incluir dummy da GFC
-include_gfc_dummy = F
+include_gfc_dummy = T
 
 # Taxa de desemprego no modelo
 desemprego_on = T
 
 # Taxa de Desemprego em variação percentual
-desemprego_diff = F
+desemprego_diff = T
 
 # Taxa de desemprego como variável exógena (mais apropriado para comparação de índices de inflação)
-desemprego_exog = F
+desemprego_exog = T
 
 # Rodando for loop para gerar os modelos ####
 
 
 # Lista de outras opções
-lags_option <- c(2,6,9)
-gamma_option <- c(3,6,9,12)
+lags_option <- c(2,3)
+gamma_option <- c(6,8,12)
 
 # Contador simples
 counter <- 0
@@ -144,13 +144,11 @@ for (i in first_loop){
     lag_endog = i
     gamma_transition = j
     nome_modelo = 'default'
-    DA_variable = 'pimpf'
+    DA_variable = 'pib'
     
 
     try(source('Code/Model_Estimation.R', verbose = F), silent = F )
     
-    DA_variable = 'capacidade'
-    try(source('Code/Model_Estimation.R', verbose = F), silent = F )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
       counter = counter + 1
@@ -165,5 +163,12 @@ for (i in first_loop){
 }
 
 
-VARselect(modelo_endo, lag.max = 24)
 modelo_exog
+DA_variable = 'pib_ipca'
+modelo_endo <- dados %>%
+  dplyr::select(all_of(ext_inflation),cambio,all_of(DA_variable),all_of(inflation_index)) %>%
+  mutate(across(!c(all_of(inflation_index)), ~ (as.numeric(.) - dplyr::lag(as.numeric(.)))/dplyr::lag(as.numeric(.)))) %>%
+  mutate(across(c(all_of(inflation_index)), ~ as.numeric(.))) %>%
+  drop_na()
+modelo_endo
+VARselect(modelo_endo, lag.max = 24)

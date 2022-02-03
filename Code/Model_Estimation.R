@@ -239,7 +239,7 @@ results_nl <- lp_nl(
   hor = hor_lps, # Horizonte para as LP
   switching = cambio_switching, # Definição da série de transição
   lag_switching = lag_switch_variable, # Uso da variável de transição de forma defasada
-  use_hp = T, # Usar filtro de HP para decompor 
+  use_hp = F, # Usar filtro de HP para decompor 
   lambda = lambda_hp, # Lambda para o filtro HP, 14400 é mensal
   trend = model_trend, # Sem variável de tendência
   gamma = gamma_transition, # Definição de gamma para a função de transição
@@ -248,28 +248,7 @@ results_nl <- lp_nl(
   lags_exog = lag_exog # Lags das variáveis exógenas
   )
 
-# 
-# modelo_exog <- data.frame(ext_inflation_df)
-# colnames(modelo_exog) <- 'ext_inflation'
-# results_nl <- lp_nl(
-#   modelo_endo, # Variáveis endógenas
-#   lags_endog_lin = lag_endog, # Lags do modelo
-#   lags_endog_nl = lag_endog, # Lags do modelo
-#   shock_type = 0, # Tipo de choque: no caso, 0 é de 1 desvio padrão
-#   confint = sig_conf_int, # Intervalo de confiança de 95%
-#   use_nw = T, # Usar erros padrão de Newey-West para as respostas ao impulso (correção de viés)
-#   hor = hor_lps, # Horizonte para as LP
-#   switching = cambio_switching, # Definição da série de transição
-#   lag_switching = lag_switch_variable, # Uso da variável de transição de forma defasada
-#   use_hp = T, # Usar filtro de HP para decompor 
-#   lambda = lambda_hp, # Lambda para o filtro HP, 14400 é mensal
-#   trend = model_trend, # Sem variável de tendência
-#   gamma = gamma_transition, # Definição de gamma para a função de transição
-#   contemp_data = contemp_effect_lp, # Variáveis exógenas com efeito contemporâneo
-#   exog_data = modelo_exog, # Variáveis exógenas com efeitos defasados
-#   lags_exog = lag_exog # Lags das variáveis exógenas
-# )
-  
+
 #######################################################################
 #                                                                     #
 #                               GRÁFICOS                              #
@@ -277,6 +256,4 @@ results_nl <- lp_nl(
 #######################################################################
 
 # Exportando figuras ####
-# source(here::here('Code','Plot_results.R'), verbose = F)
-
 source('Code/Plot_results_v2.R', verbose = F)

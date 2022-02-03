@@ -126,20 +126,20 @@ plot_IRFs_4_variables <- function() {
   for (i in 1:length(modelo_endo)) {
     
     tryCatch(expr = {
-      # IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-      #                            results_nl$irf_s1_up[response,,i],
-      #                            results_nl$irf_s1_low[response,,i]),
-      #                            .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-      #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
       IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
                                                   results_nl$irf_s1_up[response,,i],
                                                   results_nl$irf_s1_low[response,,i]),
                                         .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
+      # IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
+      #                                             results_nl$irf_s1_up[response,,i],
+      #                                             results_nl$irf_s1_low[response,,i]),
+      #                                   .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+      #   mutate(IRF_upper = IRF_upper_base) %>%
+      #   mutate(IRF_lower = IRF_lower_base) %>%
+      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
              error = function(error_in_function){
                message("Error in tibble!")
@@ -191,22 +191,16 @@ plot_IRFs_4_variables <- function() {
   plot_lst <- vector("list", length = length(modelo_endo))
   
   
+  
+  
   # IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
   #                                             results_nl$irf_s2_up[response,,i],
   #                                             results_nl$irf_s2_low[response,,i]),
   #                                   .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-  #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-  #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+  #   mutate(IRF_upper = IRF_upper_base) %>%
+  #   mutate(IRF_lower = IRF_lower_base) %>%
   #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
-  
-  IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-                                              results_nl$irf_s2_up[response,,i],
-                                              results_nl$irf_s2_low[response,,i]),
-                                    .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-    mutate(IRF_upper = IRF_upper_base) %>%
-    mutate(IRF_lower = IRF_lower_base) %>%
-    dplyr::select(!c(IRF_upper_base,IRF_lower_base))
-  
+  # 
 
   # For loop para fazer o gráfico da IRF para cada variável de resposta
   for (i in 1:(length(modelo_endo))) {
@@ -216,8 +210,8 @@ plot_IRFs_4_variables <- function() {
                                                   results_nl$irf_s2_up[response,,i],
                                                   results_nl$irf_s2_low[response,,i]),
                                         .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
@@ -317,7 +311,7 @@ plot_IRFs_4_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_1)) +
     ylab('') +
     theme_classic() +
@@ -381,7 +375,7 @@ plot_IRFs_4_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_2)) +
     ylab('') +
     theme_classic() +
@@ -458,7 +452,7 @@ plot_IRFs_4_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_1)) +
     ylab('') +
     theme_classic() +
@@ -522,7 +516,7 @@ plot_IRFs_4_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_2)) +
     ylab('') +
     theme_classic() +
@@ -565,20 +559,20 @@ plot_IRFs_5_variables <- function() {
   
   for (i in 1:length(modelo_endo)) {
     tryCatch(expr = {
-      # IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-      #                            results_nl$irf_s1_up[response,,i],
-      #                            results_nl$irf_s1_low[response,,i]),
-      #                            .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-      #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
       IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-                                                  results_nl$irf_s1_up[response,,i],
-                                                  results_nl$irf_s1_low[response,,i]),
-                                        .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+                                 results_nl$irf_s1_up[response,,i],
+                                 results_nl$irf_s1_low[response,,i]),
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
+      # IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
+      #                                             results_nl$irf_s1_up[response,,i],
+      #                                             results_nl$irf_s1_low[response,,i]),
+      #                                   .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+      #   mutate(IRF_upper = IRF_upper_base) %>%
+      #   mutate(IRF_lower = IRF_lower_base) %>%
+      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
       message("Error in tibble!")
@@ -633,20 +627,20 @@ plot_IRFs_5_variables <- function() {
   
   for (i in 1:length(modelo_endo)) {
     tryCatch(expr = {
-      # IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-      #                            results_nl$irf_s2_up[response,,i],
-      #                            results_nl$irf_s2_low[response,,i]),
-      #                            .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-      #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base)
       IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-                                        results_nl$irf_s2_up[response,,i],
-                                        results_nl$irf_s2_low[response,,i]),
-                              .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+                                 results_nl$irf_s2_up[response,,i],
+                                 results_nl$irf_s2_low[response,,i]),
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
+      # IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
+      #                                   results_nl$irf_s2_up[response,,i],
+      #                                   results_nl$irf_s2_low[response,,i]),
+      #                         .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+      #   mutate(IRF_upper = IRF_upper_base) %>%
+      #   mutate(IRF_lower = IRF_lower_base) %>%
+      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
       message("Error in tibble!")
@@ -744,7 +738,7 @@ plot_IRFs_5_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_1)) +
     ylab('') +
     theme_classic() +
@@ -808,7 +802,7 @@ plot_IRFs_5_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_2)) +
     ylab('') +
     theme_classic() +
@@ -885,7 +879,7 @@ plot_IRFs_5_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_1)) +
     ylab('') +
     theme_classic() +
@@ -949,7 +943,7 @@ plot_IRFs_5_variables <- function() {
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
+    scale_y_continuous(name = "",breaks = scales::pretty_breaks(n = 8),labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
     labs(title = paste0('Repasse cambial - ',regime_2)) +
     ylab('') +
     theme_classic() +
