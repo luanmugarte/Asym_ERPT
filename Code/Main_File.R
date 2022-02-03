@@ -6,9 +6,7 @@
 
 
 # Caminho para o diretório padrão ####
-# rm(list=ls())
-path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
-setwd(path_directory)
+setwd(here::here('Artigos','Asym_ERPT'))
 
 
 # Rodando modelo específico ####
@@ -20,7 +18,7 @@ comm_endo = T
 modelo = 'mensal'
 
 # Índice de inflação
-inflation_index = 'igp'
+inflation_index = 'ipca'
 
 # Tendência (1) ou sem tendência (0)
 model_trend = 0
@@ -30,17 +28,17 @@ contemp_effect = 0
 
 # Variável de demanda agregada (capacidade ou pimpf).
 # Caso o modelo seja trim, também podem ser (pib ou pib_hiato)
-DA_variable = 'pib'
+DA_variable = 'pib_dessaz'
 
 # Horizonte das LP's
 hor_lps <- 18
 
 # Gamma da função de transição
-gamma_transition = 3
+gamma_transition = 60
 
 # Lags das variáveis endógenas
 # Escolhido endogenamento pelo criterio HQ
-lag_endog = 1
+lag_endog = 2
 
 # Lags das variáveis exógenas
 lag_exog = 1
@@ -63,13 +61,13 @@ desemprego_on = T
 # Taxa de Desemprego em variação percentual
 desemprego_diff = F
 
+# Desemprego como variável exógena
+desemprego_exog = F
+
 # Rodando código de estimação
-source('Code/Model_Estimation.R', verbose = F)
+source(here::here('Code','Model_Estimation.R'), verbose = F)
 
 VARselect(modelo_endo)
-nome_modelo
-var_modelo <- VAR(modelo_endo, p = 1)
-roots(var_modelo)
 
 # Rodando vários modelos ####
 
@@ -78,7 +76,7 @@ roots(var_modelo)
 model_trend = 0
 
 # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
-contemp_effect = 0
+contemp_effect = 1
  
 # Lags da variável de transição
 lag_switch_variable = T
@@ -95,68 +93,68 @@ sig_IC = 95
 # Inflação externa endógena 
 comm_endo = T
 
-# Outras escolhas ####
+# Variável de inflação externa
+ext_inflation = 'comm'
+
+# Variável endógena
+DA_variable = 'pib_dessaz'
+
+# Índice de inflação
+inflation_index = 'ipca'
 
 # Lags das variáveis exógenas
 lag_exog = 1
 
-# Variável de inflação externa
-ext_inflation = 'comm'
-
-# Taxa de Desemprego em variação percentual
-desemprego_diff = F
-
-# Rodando for loop para gerar os modelos ####
-
-# Lista de variáveis endógenas
-endo_list <- c('capacidade','pimpf','pib','pib_hiato')
-exo_list <- c('comm','petro')
-dados
-# Índice de inflação
-inflation_index = 'ipa'
+# Outras escolhas ####
 
 # Incluir dummy da GFC
 include_gfc_dummy = F
 
+# Taxa de desemprego no modelo
+desemprego_on = T
+
+# Taxa de Desemprego em variação percentual
+desemprego_diff = F
+
+# Taxa de desemprego como variável exógena (mais apropriado para comparação de índices de inflação)
+desemprego_exog = F
+
+# Rodando for loop para gerar os modelos ####
+
+
 # Lista de outras opções
-lags_option <- c(1:2)
-gamma_option <- c(3,6,9)
-CI_option <- c(90,95)
-inflation_index_option <- c('ipca','igp','ipa')
-DA_variable_option <- c('pib','pimpf','capacidade')
+lags_option <- c(2,6,9)
+gamma_option <- c(3,6,9,12)
 
 # Contador simples
 counter <- 0
 loop_counter <- 0
 
 # Código do for loop
-first_loop <- inflation_index_option
-second_loop <- DA_variable_option
+first_loop <- lags_option
+second_loop <- gamma_option
 
 for (i in first_loop){
   for (j in second_loop) {
     # Caso interrompa loop
     path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
     setwd(path_directory)
-    
-    
-    lag_endog = 2
-    DA_variable = j
-    ext_inflation = 'comm'
-    gamma_transition = 9
-    sig_IC = 95
-    nome_modelo = 'default'
-    desemprego_on = F
-    desemprego_exog = T
-    desemprego_diff = F
-    include_gfc_dummy = T
-    inflation_index = i
 
-    try( source('Code/Model_Estimation.R', verbose = F), silent = F )
+    
+    lag_endog = i
+    gamma_transition = j
+    nome_modelo = 'default'
+    DA_variable = 'pimpf'
+    
+
+    try(source('Code/Model_Estimation.R', verbose = F), silent = F )
+    
+    DA_variable = 'capacidade'
+    try(source('Code/Model_Estimation.R', verbose = F), silent = F )
     
     if (dir.exists(file.path('Output/Figures', nome_modelo))) {
       counter = counter + 1
-      print(paste0(counter," model(s) run!"))
+      print(paste0(counter*2," model(s) run!"))
     }
       loop_counter <- loop_counter + 1
     }
@@ -168,6 +166,4 @@ for (i in first_loop){
 
 
 VARselect(modelo_endo, lag.max = 24)
-nome_modelo
-var_modelo <- VAR(modelo_endo, p = 2)
-roots(var_modelo)
+modelo_exog

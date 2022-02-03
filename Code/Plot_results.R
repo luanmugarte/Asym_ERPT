@@ -126,19 +126,12 @@ plot_IRFs_4_variables <- function() {
   for (i in 1:length(modelo_endo)) {
     
     tryCatch(expr = {
-      # IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-      #                            results_nl$irf_s1_up[response,,i],
-      #                            results_nl$irf_s1_low[response,,i]),
-      #                            .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-      #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
       IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-                                                  results_nl$irf_s1_up[response,,i],
-                                                  results_nl$irf_s1_low[response,,i]),
-                                        .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+                                 results_nl$irf_s1_up[response,,i],
+                                 results_nl$irf_s1_low[response,,i]),
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
              error = function(error_in_function){
@@ -191,33 +184,24 @@ plot_IRFs_4_variables <- function() {
   plot_lst <- vector("list", length = length(modelo_endo))
   
   
-  # IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-  #                                             results_nl$irf_s2_up[response,,i],
-  #                                             results_nl$irf_s2_low[response,,i]),
-  #                                   .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-  #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-  #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-  #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
-  
   IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
                                               results_nl$irf_s2_up[response,,i],
                                               results_nl$irf_s2_low[response,,i]),
                                     .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-    mutate(IRF_upper = IRF_upper_base) %>%
-    mutate(IRF_lower = IRF_lower_base) %>%
+    mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+    mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
     dplyr::select(!c(IRF_upper_base,IRF_lower_base))
-  
 
   # For loop para fazer o gráfico da IRF para cada variável de resposta
   for (i in 1:(length(modelo_endo))) {
     
     tryCatch(expr = {
       IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-                                                  results_nl$irf_s2_up[response,,i],
-                                                  results_nl$irf_s2_low[response,,i]),
-                                        .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+                                 results_nl$irf_s2_up[response,,i],
+                                 results_nl$irf_s2_low[response,,i]),
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
@@ -272,27 +256,27 @@ plot_IRFs_4_variables <- function() {
   # Criando tibble com os dados de CI e da LP (Regime 1)
   tryCatch(expr = {
     RC_r1 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s1_mean[response,,cambio_shock])
-                                                      /cumsum(results_nl$irf_s1_mean[cambio_shock,,cambio_shock])),
-                                               results_nl$irf_s1_mean[response,,cambio_shock],
-                                               results_nl$irf_s1_up[response,,cambio_shock],
-                                               results_nl$irf_s1_low[response,,cambio_shock],
-                                               results_nl$irf_s1_mean[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s1_up[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s1_low[cambio_shock,,cambio_shock]),
-                                     .name_repair = ~ c('RC',
-                                                        'Inflation_Index_mean',
-                                                        'Inflation_Index_upper',
-                                                        'Inflation_Index_lower',
-                                                        'cambio_mean',
-                                                        'cambio_upper',
-                                                        'cambio_lower')))
+                                     /cumsum(results_nl$irf_s1_mean[cambio_shock,,cambio_shock])),
+                              results_nl$irf_s1_mean[response,,cambio_shock],
+                              results_nl$irf_s1_up[response,,cambio_shock],
+                              results_nl$irf_s1_low[response,,cambio_shock],
+                              results_nl$irf_s1_mean[cambio_shock,,cambio_shock],
+                              results_nl$irf_s1_up[cambio_shock,,cambio_shock],
+                              results_nl$irf_s1_low[cambio_shock,,cambio_shock]),
+                    .name_repair = ~ c('RC',
+                                       'Inflation_Index_mean',
+                                       'Inflation_Index_upper',
+                                       'Inflation_Index_lower',
+                                       'cambio_mean',
+                                       'cambio_upper',
+                                       'cambio_lower')))
   },
   error = function(error_in_function){
     message("Error in tibble!")
     print(error_in_function)
   }
   )
-  
+  regime_1
   
   # Criando tibble que define os momentos de significância estatística de ambos as LP's
   # df.new <- RC_r1 %>%
@@ -300,20 +284,21 @@ plot_IRFs_4_variables <- function() {
   #                                 ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
   #                               1,
   #                               0))
+  # df.new
+  
   df.new <- RC_r1 %>%
     mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
                                 1,
                                 0))
-  df.new$sig_RC[1] <- 0 # Primeiro período nunca tem IC
+  df.new$sig_RC[1] <- 0  # Primeiro período nunca tem IC
   df.new
-  
   # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
   rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
   rects
   
   # Criando o gráfico
   RC_r1_plot <- ggplot(RC_r1)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
+    geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F) +
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
@@ -336,20 +321,21 @@ plot_IRFs_4_variables <- function() {
   # Criando tibble com os dados de CI e da LP (Regime 2)
   tryCatch(expr = {
     RC_r2 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s2_mean[response,,cambio_shock])
-                                                      /cumsum(results_nl$irf_s2_mean[cambio_shock,,cambio_shock])),
-                                               results_nl$irf_s2_mean[response,,cambio_shock],
-                                               results_nl$irf_s2_up[response,,cambio_shock],
-                                               results_nl$irf_s2_low[response,,cambio_shock],
-                                               results_nl$irf_s2_mean[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s2_up[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s2_low[cambio_shock,,cambio_shock]),
-                                     .name_repair = ~ c('RC',
-                                                        'Inflation_Index_mean',
-                                                        'Inflation_Index_upper',
-                                                        'Inflation_Index_lower',
-                                                        'cambio_mean',
-                                                        'cambio_upper',
-                                                        'cambio_lower')))
+                                     /cumsum(results_nl$irf_s2_mean[cambio_shock,,cambio_shock])),
+                              results_nl$irf_s2_mean[response,,cambio_shock],
+                              results_nl$irf_s2_up[response,,cambio_shock],
+                              results_nl$irf_s2_low[response,,cambio_shock],
+                              results_nl$irf_s2_mean[cambio_shock,,cambio_shock],
+                              results_nl$irf_s2_up[cambio_shock,,cambio_shock],
+                              results_nl$irf_s2_low[cambio_shock,,cambio_shock]
+    ),
+    .name_repair = ~ c('RC',
+                       'Inflation_Index_mean',
+                       'Inflation_Index_upper',
+                       'Inflation_Index_lower',
+                       'cambio_mean',
+                       'cambio_upper',
+                       'cambio_lower')))
   },
   error = function(error_in_function){
     message("Error in tibble!")
@@ -357,6 +343,7 @@ plot_IRFs_4_variables <- function() {
   }
   )
   
+  RC_r2
   
   # Criando tibble que define os momentos de significância estatística de ambos as LP's
   # df.new <- RC_r2 %>%
@@ -365,19 +352,19 @@ plot_IRFs_4_variables <- function() {
   #                               1,
   #                               0))
   df.new <- RC_r2 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) ,
+    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
                                 1,
                                 0))
   df.new$sig_RC[1] <- 0  # Primeiro período nunca tem IC
   df.new
   
-  RC_r2
   # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
   rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
   rects
+  
   # Criando o gráfico
   RC_r2_plot <- ggplot(RC_r2)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
+    geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F) +
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
@@ -402,148 +389,7 @@ plot_IRFs_4_variables <- function() {
     draw_plot(RC_r1_plot, x = 0, y = 0.5, height = .5, width = 1) +
     draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
   
-  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'_v1.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
-  
-  #---------------------------------------------------------------------#
-  #                                                                     #
-  #   Repasse cambial conforme Belaisch com IC para cambio (2003)       #
-  #                                                                     #
-  #---------------------------------------------------------------------#
-  
-  # Criando tibble com os dados de CI e da LP (Regime 1)
-  tryCatch(expr = {
-    RC_r1 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s1_mean[response,,cambio_shock])
-                                                      /cumsum(results_nl$irf_s1_mean[cambio_shock,,cambio_shock])),
-                                               results_nl$irf_s1_mean[response,,cambio_shock],
-                                               results_nl$irf_s1_up[response,,cambio_shock],
-                                               results_nl$irf_s1_low[response,,cambio_shock],
-                                               results_nl$irf_s1_mean[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s1_up[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s1_low[cambio_shock,,cambio_shock]),
-                                     .name_repair = ~ c('RC',
-                                                        'Inflation_Index_mean',
-                                                        'Inflation_Index_upper',
-                                                        'Inflation_Index_lower',
-                                                        'cambio_mean',
-                                                        'cambio_upper',
-                                                        'cambio_lower')))
-  },
-  error = function(error_in_function){
-    message("Error in tibble!")
-    print(error_in_function)
-  }
-  )
-  
-  
-  # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  df.new <- RC_r1 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-                                  ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-                                1,
-                                0))
-  # df.new <- RC_r1 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
-  #                               1,
-  #                               0))
-  df.new$sig_RC[1] <- 0 # Primeiro período nunca tem IC
-  df.new
-  
-  # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
-  rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
-  rects
-  
-  # Criando o gráfico
-  RC_r1_plot <- ggplot(RC_r1)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
-    geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
-    geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
-    scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
-    labs(title = paste0('Repasse cambial - ',regime_1)) +
-    ylab('') +
-    theme_classic() +
-    theme(  panel.grid = element_blank(),
-            panel.border = element_blank(),
-            legend.position="right",
-            legend.title = element_text(hjust = 0.5),
-            legend.text = element_text(size=10),
-            legend.key = element_rect(colour = "black"),
-            legend.box.background = element_rect(colour = "black", size = 1),
-            plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-            plot.title = ggtext::element_markdown(size = 10, colour = 'black', hjust = 0.5),
-            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
-            axis.text.y = element_text(size=11,colour = 'black'))
-  
-  # Criando tibble com os dados de CI e da LP (Regime 2)
-  tryCatch(expr = {
-    RC_r2 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s2_mean[response,,cambio_shock])
-                                                      /cumsum(results_nl$irf_s2_mean[cambio_shock,,cambio_shock])),
-                                               results_nl$irf_s2_mean[response,,cambio_shock],
-                                               results_nl$irf_s2_up[response,,cambio_shock],
-                                               results_nl$irf_s2_low[response,,cambio_shock],
-                                               results_nl$irf_s2_mean[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s2_up[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s2_low[cambio_shock,,cambio_shock]),
-                                     .name_repair = ~ c('RC',
-                                                        'Inflation_Index_mean',
-                                                        'Inflation_Index_upper',
-                                                        'Inflation_Index_lower',
-                                                        'cambio_mean',
-                                                        'cambio_upper',
-                                                        'cambio_lower')))
-  },
-  error = function(error_in_function){
-    message("Error in tibble!")
-    print(error_in_function)
-  }
-  )
-  
-  
-  # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  df.new <- RC_r2 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-                                  ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-                                1,
-                                0))
-  # df.new <- RC_r2 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) ,
-  #                               1,
-  #                               0)) 
-  df.new$sig_RC[1] <- 0  # Primeiro período nunca tem IC
-  df.new
-  
-  RC_r2
-  # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
-  rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
-  rects
-  # Criando o gráfico
-  RC_r2_plot <- ggplot(RC_r2)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
-    geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
-    geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
-    scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
-    labs(title = paste0('Repasse cambial - ',regime_2)) +
-    ylab('') +
-    theme_classic() +
-    theme(  panel.grid = element_blank(),
-            panel.border = element_blank(),
-            legend.position="right",
-            legend.title = element_text(hjust = 0.5),
-            legend.text = element_text(size=10),
-            legend.key = element_rect(colour = "black"),
-            legend.box.background = element_rect(colour = "black", size = 1),
-            plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-            plot.title = ggtext::element_markdown(size = 10, colour = 'black', hjust = 0.5),
-            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
-            axis.text.y = element_text(size=11,colour = 'black'))
-  
-  # Criando os dois gráficos
-  ggdraw() +
-    draw_plot(RC_r1_plot, x = 0, y = 0.5, height = .5, width = 1) +
-    draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
-  
-  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'_v2.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   # Final da função
 }
@@ -565,19 +411,12 @@ plot_IRFs_5_variables <- function() {
   
   for (i in 1:length(modelo_endo)) {
     tryCatch(expr = {
-      # IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-      #                            results_nl$irf_s1_up[response,,i],
-      #                            results_nl$irf_s1_low[response,,i]),
-      #                            .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-      #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
       IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[response,,i],
-                                                  results_nl$irf_s1_up[response,,i],
-                                                  results_nl$irf_s1_low[response,,i]),
-                                        .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+                                 results_nl$irf_s1_up[response,,i],
+                                 results_nl$irf_s1_low[response,,i]),
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
@@ -633,19 +472,12 @@ plot_IRFs_5_variables <- function() {
   
   for (i in 1:length(modelo_endo)) {
     tryCatch(expr = {
-      # IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-      #                            results_nl$irf_s2_up[response,,i],
-      #                            results_nl$irf_s2_low[response,,i]),
-      #                            .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-      #   mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-      #   dplyr::select(!c(IRF_upper_base,IRF_lower_base)
       IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[response,,i],
-                                        results_nl$irf_s2_up[response,,i],
-                                        results_nl$irf_s2_low[response,,i]),
-                              .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        mutate(IRF_upper = IRF_upper_base) %>%
-        mutate(IRF_lower = IRF_lower_base) %>%
+                                 results_nl$irf_s2_up[response,,i],
+                                 results_nl$irf_s2_low[response,,i]),
+                                 .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+        mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
+        mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
     },
     error = function(error_in_function){
@@ -690,150 +522,10 @@ plot_IRFs_5_variables <- function() {
   
   ggsave(paste0('IRF_',stringr::str_to_upper(inflation_index),'_',regime_2,'.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
+  
   #---------------------------------------------------------------------#
   #                                                                     #
   #             Repasse cambial conforme Belaisch (2003)                #
-  #                                                                     #
-  #---------------------------------------------------------------------#
-  
-  # Criando tibble com os dados de CI e da LP (Regime 1)
-  tryCatch(expr = {
-    RC_r1 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s1_mean[response,,cambio_shock])
-                                                      /cumsum(results_nl$irf_s1_mean[cambio_shock,,cambio_shock])),
-                                               results_nl$irf_s1_mean[response,,cambio_shock],
-                                               results_nl$irf_s1_up[response,,cambio_shock],
-                                               results_nl$irf_s1_low[response,,cambio_shock],
-                                               results_nl$irf_s1_mean[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s1_up[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s1_low[cambio_shock,,cambio_shock]),
-                                     .name_repair = ~ c('RC',
-                                                        'Inflation_Index_mean',
-                                                        'Inflation_Index_upper',
-                                                        'Inflation_Index_lower',
-                                                        'cambio_mean',
-                                                        'cambio_upper',
-                                                        'cambio_lower')))
-  },
-  error = function(error_in_function){
-    message("Error in tibble!")
-    print(error_in_function)
-  }
-  )
-  
-  
-  # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  # df.new <- RC_r1 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-  #                                 ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-  #                               1,
-  #                               0))
-  df.new <- RC_r1 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
-                                1,
-                                0))
-  df.new$sig_RC[1] <- 0 # Primeiro período nunca tem IC
-  df.new
-  
-  # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
-  rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
-  rects
-  
-  # Criando o gráfico
-  RC_r1_plot <- ggplot(RC_r1)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
-    geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
-    geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
-    scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
-    labs(title = paste0('Repasse cambial - ',regime_1)) +
-    ylab('') +
-    theme_classic() +
-    theme(  panel.grid = element_blank(),
-            panel.border = element_blank(),
-            legend.position="right",
-            legend.title = element_text(hjust = 0.5),
-            legend.text = element_text(size=10),
-            legend.key = element_rect(colour = "black"),
-            legend.box.background = element_rect(colour = "black", size = 1),
-            plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-            plot.title = ggtext::element_markdown(size = 10, colour = 'black', hjust = 0.5),
-            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
-            axis.text.y = element_text(size=11,colour = 'black'))
-  
-  # Criando tibble com os dados de CI e da LP (Regime 2)
-  tryCatch(expr = {
-    RC_r2 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s2_mean[response,,cambio_shock])
-                                                      /cumsum(results_nl$irf_s2_mean[cambio_shock,,cambio_shock])),
-                                               results_nl$irf_s2_mean[response,,cambio_shock],
-                                               results_nl$irf_s2_up[response,,cambio_shock],
-                                               results_nl$irf_s2_low[response,,cambio_shock],
-                                               results_nl$irf_s2_mean[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s2_up[cambio_shock,,cambio_shock],
-                                               results_nl$irf_s2_low[cambio_shock,,cambio_shock]),
-                                     .name_repair = ~ c('RC',
-                                                        'Inflation_Index_mean',
-                                                        'Inflation_Index_upper',
-                                                        'Inflation_Index_lower',
-                                                        'cambio_mean',
-                                                        'cambio_upper',
-                                                        'cambio_lower')))
-  },
-  error = function(error_in_function){
-    message("Error in tibble!")
-    print(error_in_function)
-  }
-  )
-  
-  
-  # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  # df.new <- RC_r2 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-  #                                 ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-  #                               1,
-  #                               0))
-  df.new <- RC_r2 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) ,
-                                1,
-                                0))
-  df.new$sig_RC[1] <- 0  # Primeiro período nunca tem IC
-  df.new
-  
-  RC_r2
-  # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
-  rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
-  rects
-  # Criando o gráfico
-  RC_r2_plot <- ggplot(RC_r2)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
-    geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
-    geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
-    scale_x_continuous(name = "",breaks=seq(0,18,1),) +
-    scale_y_continuous(name = "",labels = function(x) paste0(x*100, "%"),expand = c(0, 0)) +
-    labs(title = paste0('Repasse cambial - ',regime_2)) +
-    ylab('') +
-    theme_classic() +
-    theme(  panel.grid = element_blank(),
-            panel.border = element_blank(),
-            legend.position="right",
-            legend.title = element_text(hjust = 0.5),
-            legend.text = element_text(size=10),
-            legend.key = element_rect(colour = "black"),
-            legend.box.background = element_rect(colour = "black", size = 1),
-            plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-            plot.title = ggtext::element_markdown(size = 10, colour = 'black', hjust = 0.5),
-            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
-            axis.text.y = element_text(size=11,colour = 'black'))
-  
-  # Criando os dois gráficos
-  ggdraw() +
-    draw_plot(RC_r1_plot, x = 0, y = 0.5, height = .5, width = 1) +
-    draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
-  
-  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'_v1.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
-  
-  #---------------------------------------------------------------------#
-  #                                                                     #
-  #   Repasse cambial conforme Belaisch com IC para cambio (2003)       #
   #                                                                     #
   #---------------------------------------------------------------------#
   
@@ -863,15 +555,15 @@ plot_IRFs_5_variables <- function() {
   
   
   # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  df.new <- RC_r1 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-                                  ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-                                1,
-                                0))
   # df.new <- RC_r1 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
+  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
+  #                                 ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
   #                               1,
   #                               0))
+  df.new <- RC_r1 %>%
+    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
+                                1,
+                                0))
   df.new$sig_RC[1] <- 0 # Primeiro período nunca tem IC
   df.new
   
@@ -927,15 +619,15 @@ plot_IRFs_5_variables <- function() {
   
   
   # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  df.new <- RC_r2 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-                                  ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-                                1,
-                                0))
   # df.new <- RC_r2 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) ,
+  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
+  #                                 ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
   #                               1,
   #                               0)) 
+  df.new <- RC_r2 %>%
+    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) ,
+                                1,
+                                0)) 
   df.new$sig_RC[1] <- 0  # Primeiro período nunca tem IC
   df.new
   
@@ -970,9 +662,9 @@ plot_IRFs_5_variables <- function() {
     draw_plot(RC_r1_plot, x = 0, y = 0.5, height = .5, width = 1) +
     draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
   
-  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'_v2.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+  ggsave(paste0('RC_',stringr::str_to_upper(inflation_index),'.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
-  # Fim da função
+
 }
 
 # Exportando os resultados ####
@@ -1001,8 +693,7 @@ config_list <- c(modelo = modelo,
                  desemprego_on = desemprego_on,
                  desemprego_diff = desemprego_diff,
                  desemprego_exog = desemprego_exog,
-                 hor_lps = hor_lps,
-                 lambda_hp = lambda_hp
+                 hor_lps = hor_lps
                  )
 
 config_list <- data.frame(config_list)

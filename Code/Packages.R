@@ -6,10 +6,8 @@ library('normtest') # Para testar normalidade dos res??duos
 library(xts) # Objeto xts
 library('dynlm') # Para dinamicos
 library(sandwich)
-library(strucchange)
 library(urca)
 library(FinTS)
-library(gmm)
 library(purrr)
 library(seasonal)
 library(x13binary)
@@ -39,14 +37,6 @@ library(lmtest)
 library(stats)
 library(olsrr)
 library(sandwich)
-library(doMC)
 library(lpirfs)
 library(data.table)
-
-#### Outras Configurações ###
-options(digits=4)
-# source("covEWMA.R")
-# registerDoMC(2)
-library(devtools)
-# install_github("MatthieuStigler/tsDyn", ref="Dev94", subdir="tsDyn")
-# # source('~/Dissertacao/ScriptsR/rootsTVAR.R', echo=TRUE)
+library(here)

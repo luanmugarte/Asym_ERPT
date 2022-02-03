@@ -1,8 +1,22 @@
 # Configurações iniciais ####
 
 if ( (!exists("dadosbrutos")) & (!exists("dadosbrutos_trim")) )  {
-  source('Code/Packages.R', verbose = F)
-  source('Code/Cleaning_data_2000.R', verbose = F)
+  tryCatch(expr = {
+    source('Code/Packages.R', verbose = F)
+  },
+  error = function(error_in_function){
+    message("Error in packages file!")
+    print(error_in_function)
+  }
+  )
+  tryCatch(expr = {
+    source('Code/Cleaning_data.R', verbose = F)
+  },
+  error = function(error_in_function){
+    message("Error in data cleaning file!")
+    print(error_in_function)
+  }
+  )
 }
 
 # Resgatando as variáveis do modelo
@@ -16,7 +30,8 @@ modelo = 'mensal'
 if (modelo == 'mensal'){
   dados <- dadosbrutos
   date <- seq(2000,2020.23,1/12)
-  lambda_hp = 14400
+  # lambda_hp = 14400
+  lambda_hp = 129600
 } else   {
   dados <- dadosbrutos_trim
   date <- seq(2000.26,2019.99,1/4)
@@ -142,7 +157,7 @@ modelo_endo
 modelo_exog
 
 # Definição dos choques e respostas ####
-response <- grep(inflation_index, colnames(modelo_endo))
+response <- grep(paste0("^",inflation_index,"$"), colnames(modelo_endo))
 cambio_shock <- grep('cambio', colnames(modelo_endo))
 
 # Significancia do IC
@@ -208,7 +223,7 @@ nome_modelo = paste0(toupper(modelo),
 }
 nome_modelo
 # Seleção de defasagem ótima
-VARselect(modelo_endo)
+VARselect(modelo_endo, lag.max = 24)
 
 lag <- stats::lag
 # Estimando as projeções locais ####
@@ -262,4 +277,6 @@ results_nl <- lp_nl(
 #######################################################################
 
 # Exportando figuras ####
-source('Code/Plot_results_RC.R', verbose = F, echo = F)
+# source(here::here('Code','Plot_results.R'), verbose = F)
+
+source('Code/Plot_results_v2.R', verbose = F)
