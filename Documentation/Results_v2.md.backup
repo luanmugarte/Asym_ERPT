@@ -1,0 +1,88 @@
+# Resultados das estimações
+
+> Para os modelos com a possibilidade de decomposição de cholesky diferentes. Comentários sobre as opções se mantém conforme a v1.
+
+
+## Comentários gerais
+
+Talvez tentar incluir taxa de juros como uma variável de controle para a dinâmica entre inflação e taxa de câmbio.
+
+## Opções
+
+
+### Gamma (sensibilidade da função de transição)
+
+Adotei 8, pois pareceu um valor razoável em termos da rapidez de mudança de regime (já que a intenção é diferenciar entre regimes de depreciação e apreciação), além de que não capta a incerteza dos regimes em momentos de baixa volatilidade.
+
+### Trim vs Mensal
+
+Escolha final: **mensal**
+
+
+### Comm endógena vs. exógena
+
+Endógena parece ter resultados mais adequados (necessário uma avaliação mais minunciosa das outras IRFs)
+
+1. IRFs de câmbio tem uma temporalidade mais adequada (significância no regime de apreciação após vários meses, invés de no CP)
+   1. No entanto, no regime de apreciação, pode começar em um nível negativo (n significativo) após choque inicial.
+
+#### Petro vs comm
+
+##### Endógenas
+
+Para DA: capacidade, os resultados com *comm* pareceram melhor. Para DA: pimpf, os resultados pareceram melhor. Petro parece aumentar a magnitude do RC.
+
+##### Exógenas
+
+Resultados bem semelhantes  (*e piores quando exógenas*) para as duas variáveis de *infl_ext* e de DA.
+
+Escolha final: inflação externa endógena e variável de commodities do IMF.
+
+### Capacidade vs. pimpf vs pib vs hiato do pib
+
+#### Capacidade e pimpf
+
+Ambos não parecem ser boas proxys para a DA. Capacidade parece produzir resultados melhores em lags maiores, enquanto para 1 lag pimpf gera resultados mais adequados.
+
+#### PIB
+
+Parece ser uma das melhores variáveis de DA. Melhores em lags maiores. 
+
+Melhores resultados com configurações:
+
+1. Lags maiores (3-5)
+	1. Para lag > 5, o RC no regime de apreciação passa para campo negativo após 10 periodo.
+
+#### Hiato do PIB
+
+Boa variável de DA, mas suscetível à crítica (heterodoxa) pelo uso do hiato. Também gera IRFs de desemprego estranhas com lag = 1. Com petro, gera resultados melhores.
+
+**Escolha final**: PIB
+
+## Decomposições de Cholesky
+
+### Diagonal Identidade
+
+Gera resultados bons
+
+### Diagonal triangulo inferior
+
+Gera resultados bons
+
+### Personalizada 1 (comm exo, pib exo, cambio dep de comm, ipca dep de comm e cambio)
+
+Gera magnitudes de IRFs grandes e significancia reduzida, especialmente em períodos mais longes. Resultados um pouco melhores para p > 5.
+
+### Personalizada 1 (comm exo, pib exo, cambio exo, ipca dep de comm e cambio)
+
+Gera magnitudes de IRFs grandes e significancia reduzida, especialmente em períodos mais longes. Resultados um pouco melhores para p > 5.
+
+```  [,1] [,2] [,3] [,4]
+[1,]   NA    0    0    0
+[2,]    0   NA    0    0
+[3,]    0    0   NA    0
+[4,]   NA   NA    0   NA
+```
+
+## Resultados interessantes
+
