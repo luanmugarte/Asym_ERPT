@@ -13,7 +13,7 @@ source(here::here('Code','functions','data_and_model_functions.R'))
 source(here::here('Code','functions','plot_functions.R'))
 
 # Running main functions once
-load_packages_and_data()
+raw_data <- load_packages_and_data()
 
 # Rodando modelo específico ####
 
@@ -53,7 +53,7 @@ lag_exog = 1
 ext_inflation = 'comm'
 
 # Lags da variável de transição
-lag_switch_variable = F
+lag_switch_variable = T
 
 # Incluir dummy da GFC
 include_gfc_dummy = F
@@ -71,15 +71,18 @@ desemprego_diff = F
 desemprego_exog = F
 
 # Parâmetro lambda do filtro HP
-lambda_hp = 14400
+lambda_hp = 192600
+
+# Incluir taxa de juros
+include_interest_rate = T
 
 # Decomposição de Cholesky
-# chol_decomp = diag(as.character(NA), nrow = 4, ncol = 4)
+chol_decomp = diag(as.character(NA), nrow = 5, ncol = 5)
 
-chol_decomp = NULL
+# chol_decomp = NULL
 
 # Rodando função de estimação
-model_obj <- get_model_specification()
+model_obj <- get_model_specification(raw_data)
 model_specs <- model_obj[[1]]
 model_data <- model_obj[[2]]
 
@@ -89,8 +92,6 @@ results_lin <- model_results[[2]]
 
 # Exportando figures
 export_figures(results_nl,results_lin,model_specs)
-
-setwd('~/Artigos/Asym_ERPT')
 
 # Rodando vários modelos ####
 
@@ -149,7 +150,7 @@ desemprego_exog = F
 chol_decomp = matrix(c(c(NA,0,0,0),
                        c(0,NA,0,0),
                        c(0,0,NA,0),
-                       c(NA,NA,0,NA)),
+                       c(0,0,0,NA)),
                      nrow= 4, ncol =4, byrow= T)
 # chol_decomp = NULL
 
@@ -157,8 +158,8 @@ chol_decomp = matrix(c(c(NA,0,0,0),
 
 
 # Lista de outras opções
-lags_option <- c(2,3,4,5)
-DA_option <- c('pib','pib_hiato_real','pimpf')
+lags_option <- c(3,5)
+DA_option <- c('pib','pib_hiato_real','pib_ipca', 'pimpf','pib_hiato_nom','capacidade')
 
 # Contador simples
 counter <- 0
@@ -176,12 +177,12 @@ for (i in first_loop){
   for (j in second_loop) {
 
     lag_endog = i
-    gamma_transition = 8
+    gamma_transition = 12
     nome_modelo = 'default'
-    lambda_hp = 192600
+    lambda_hp = 14400
     DA_variable = j
     
-    model_obj <- get_model_specification()
+    model_obj <- get_model_specification(raw_data)
     model_specs <- model_obj[[1]]
     model_data <- model_obj[[2]]
     
@@ -204,4 +205,3 @@ for (i in first_loop){
       
 }
 
-VARselect(modelo_endo, lag.max =24)

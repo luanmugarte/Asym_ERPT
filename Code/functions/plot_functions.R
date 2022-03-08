@@ -10,7 +10,7 @@
 # Regime 2 é a probabilidade do evento da variável de transição. 
 plot_transition_function <- function(results_nl,specs) {
   if (specs$model_frequency == 'mensal') {
-    transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2020,2), frequency = 12))
+    transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2020,1), frequency = 12))
   } else {
     transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2019,4), frequency = 4))
   }
@@ -53,7 +53,12 @@ plot_transition_function <- function(results_nl,specs) {
   
   # Criando dataframe dos dados
   # tryCatch é usado para evitar uma mensagem chata de "New names"
-  tryCatch(expr = {df <- suppressMessages(as_tibble(bind_cols(results_nl$fz,date), .name_repair = ~vctrs::vec_as_names(c('transition_function','date'), repair = "unique", quiet = TRUE)))},
+  tryCatch(expr = {df <- suppressMessages(
+    as_tibble(bind_cols(results_nl$fz,date),
+              .name_repair = ~vctrs::vec_as_names(c('transition_function',
+                                                    'date'), 
+                                                  repair = "unique", 
+                                                  quiet = TRUE)))},
            error = function(error_in_function){
              message("Error in tibble!")
              print(error_in_function)
@@ -65,8 +70,13 @@ plot_transition_function <- function(results_nl,specs) {
   ggplot(df)  + 
     geom_line(aes(x=date, y=transition_function), size = 0.75, color = 'darkred') +
     scale_x_continuous(breaks=seq(2000,2020.23,0.5),                       
-                       labels=paste0(c("Jan ",'Jun '),c(rep(2000:2019,each=2),2020)),expand = c(0, 0)) +
-    labs(title = paste0('Função de Transição - ',regime_2, ' - gamma = ', as.character(gamma_transition))) +
+                       labels=paste0(c("Jan ",'Jun '),
+                                     c(rep(2000:2019,each=2),2020)),
+                       expand = c(0, 0)) +
+    labs(title = paste0('Função de Transição - ',
+                        regime_2,
+                        ' - gamma = ',
+                        as.character(gamma_transition))) +
     scale_fill_brewer(palette="Blues") +
     ylab('') +
     xlab('') +
@@ -79,7 +89,12 @@ plot_transition_function <- function(results_nl,specs) {
             legend.text = element_text(size=10),
             legend.key = element_rect(colour = "black"),
             legend.box.background = element_rect(colour = "black", size = 1),
-            axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.6,size=12, colour = 'black',face = 'bold'),
+            axis.text.x = element_text(angle = 45, 
+                                       vjust = 0.5,
+                                       hjust = 0.6,
+                                       size=12, 
+                                       colour = 'black',
+                                       face = 'bold'),
             axis.text.y = element_text(size=12,face = 'bold')) 
   
   ggsave(paste0('Funcao_Transicao_',
@@ -114,10 +129,11 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
   for (i in 1:specs$n_endo_variables) {
     
     tryCatch(expr = {
-      IRF_s1 <- suppressMessages(tibble(bind_cols(results_nl$irf_s1_mean[specs$response,,i],
-                                                  results_nl$irf_s1_up[specs$response,,i],
-                                                  results_nl$irf_s1_low[specs$response,,i]),
-                                        .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
+      IRF_s1 <- suppressMessages(
+        tibble(bind_cols(results_nl$irf_s1_mean[specs$response,,i],
+                         results_nl$irf_s1_up[specs$response,,i],
+                         results_nl$irf_s1_low[specs$response,,i]),
+               .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
         # mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         # mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         mutate(IRF_upper = IRF_upper_base) %>%
@@ -158,7 +174,11 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
               legend.box.background = element_rect(colour = "black", size = 1),
               plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
               plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
-              axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
+              axis.text.x = element_text(angle = 45,
+                                         vjust = 0.6,
+                                         hjust = 0.6,
+                                         size=11,
+                                         colour = 'black'),
               axis.text.y = element_text(size=11,colour = 'black'))
     
   }

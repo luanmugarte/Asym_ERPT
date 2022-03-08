@@ -46,9 +46,13 @@ petro
 pib_mensal <- read.csv("Data/Analytic/pib_mensal.csv", sep = ';')
 pib_mensal
 
-# PIB
+# PIB deflacionado por IPCA
 pib_ipca <- read.csv("Data/Analytic/pib_ipca.csv", sep = ',')
 pib_ipca
+
+# Selic
+selic <- read.csv("Data/Analytic/selic_over_media.csv", sep = ',')
+selic
 
 #### Manipulando as séries ####
 
@@ -72,7 +76,7 @@ pimpfantiga <- ts(pimpfantiga*(pimpf[1]/pimpfantiga[37]), start = c(1999,1), fre
 pimpfantiga[37:48]
 
 # Criando série unificada
-pimpf <- ts(c(pimpfantiga[13:36],pimpf[1:length(pimpf)]), start = c(2000,1), end = c(2020,2), frequency = 12)
+pimpf <- ts(c(pimpfantiga[13:36],pimpf[1:length(pimpf)]), start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # Vendo as séries
 ipcaindice[1,]
@@ -87,46 +91,56 @@ pimpf[1]
 
 # Convertendo em objetos ts - Período: 01/2000 - 02/2020 ####
 
-ipca <- ts((ipca[13:nrow(ipca),2])/100, start = c(2000,1), end = c(2020,2), frequency = 12)
+# IPCA - variacao mensal
+ipca <- ts((ipca[13:nrow(ipca),2])/100, start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # IPCA - Índice
-ipcaindice <- ts((ipcaindice[13:nrow(ipcaindice),2]), start = c(2000,1), end = c(2020,2), frequency = 12)
+ipcaindice <- ts((ipcaindice[13:nrow(ipcaindice),2]), start = c(2000,1), end = c(2020,1), frequency = 12)
+
+# IPCA - variacao acumulada em 12 meses
+ipca_acum <- ts(ipcadecomp[14:nrow(ipcadecomp),2], start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # Cambio
-cambio <- (ts(cambiocompleto[13:nrow(cambiocompleto),2], start = c(2000,1),  end = c(2020,2), frequency = 12))
+cambio <- (ts(cambiocompleto[13:nrow(cambiocompleto),2], start = c(2000,1),  end = c(2020,1), frequency = 12))
 
 # Commodities
-comm <- ts((comm[13:nrow(comm),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+comm <- ts((comm[13:nrow(comm),2]),  start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # Utilizacao de capacidade
-capacidade <- ts((capacidade[97:nrow(capacidade),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+capacidade <- ts((capacidade[97:nrow(capacidade),2]),  start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # Taxa de desemprego
-desemprego <- ts(desemprego[25:nrow(desemprego),2], start = c(2000,1), end = c(2020,2), frequency = 12)
+desemprego <- ts(desemprego[25:nrow(desemprego),2], start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # IGP
-igp <- ts(diff(log(igp[,2]))[77:nrow(igp)], start = c(2000,1), end = c(2020,2), frequency = 12)
+igp <- ts(diff(log(igp[,2]))[77:nrow(igp)], start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # IPA
-ipa <- ts(diff(log(ipa[,2]))[77:nrow(ipa)], start = c(2000,1), end = c(2020,2), frequency = 12)
+ipa <- ts(diff(log(ipa[,2]))[77:nrow(ipa)], start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # IPCA - Alimentos e Bebidas
-ipca_alimbebs <- ts((ipcadecomp[14:nrow(ipcadecomp),3]), start = c(2000,1), end = c(2020,2), frequency = 12)
+ipca_alimbebs <- ts((ipcadecomp[14:nrow(ipcadecomp),3]), start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # Petroleo
-petro <- ts((petro[7:nrow(petro),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+petro <- ts((petro[7:nrow(petro),2]),  start = c(2000,1), end = c(2020,1), frequency = 12)
 
 # PIB mensal
-pib_mensal <- ts((pib_mensal[7:nrow(pib_mensal),2]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+pib_mensal <- ts((pib_mensal[7:nrow(pib_mensal),2]),  start = c(2000,1), end = c(2020,1), frequency = 12)
 
-# PIB deflacionado por IGP
-pib_ipca <- ts((pib_ipca[242:nrow(pib_ipca),1]),  start = c(2000,1), end = c(2020,2), frequency = 12)
+# PIB deflacionado por IPCA
+pib_ipca <- ts((pib_ipca[242:nrow(pib_ipca),1]),  start = c(2000,1), end = c(2020,1), frequency = 12)
 pib_ipca
+
+# Selic
+selic <-  ts(selic[164:nrow(selic),2]/100, start = c(2000,1), end = c(2020,1), frequency = 12)
+selic
+
 # Dummy para a GFC (começa em julho porque é incluida defasada no modelo)
-gfc_dummy <- tibble(seq(from = as.Date("2000-01-01"), to = as.Date("2020-02-01"), by = 'month'), .name_repair = ~c("date")) %>%
+gfc_dummy <- tibble(seq(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = 'month'), .name_repair = ~c("date")) %>%
   mutate(dummy = ifelse(((date > "2008-07-01") & (date < "2009-07-01")), 1,0)) %>%
   dplyr::select(dummy)
 gfc_dummy
+
 
 # Plotando as śeries
 par(mfrow=c(1,1))
@@ -242,6 +256,14 @@ par(mfrow=c(1,1))
 pib_hiato_real <- (log(pib_ipca)-pib_ipca.hp$trend)
 pib_hiato_real
 
+# Deflacionando a Selic
+
+# selic_defl <- deflate(selic,ipca_acum, type = 'perc')
+selic_defl <- deflateBR::deflate(selic,
+                                    seq.Date(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = "month"),
+                                    '01/2000'
+                                    )
+selic_defl
 # Extraindo hiato do produto
 pib_dessaz
 pib_mensal.hp <- hpfilter(log(pib_dessaz), freq = 192600, type = 'lambda')
@@ -257,6 +279,18 @@ abline(h=0)
 par(mfrow=c(1,1))
 pib_hiato_nom <- (log(pib_dessaz)-pib_mensal.hp$trend)
 pib_hiato_nom
+
+# Criando série da taxa de juros
+selic_defl.hp <- hpfilter(selic_defl, freq = 192600, type = 'lambda')
+selic
+
+par(mfrow=c(2,1))
+plot(selic_defl) 
+plot(selic-selic_defl.hp$trend)
+
+par(mfrow=c(1,1))
+taxa_juros <- (selic)-selic_defl.hp$trend
+plot(taxa_juros)
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$##
 #                                                                     #
@@ -279,12 +313,13 @@ length(pib_hiato_real)
 length(pib_hiato_nom)
 length(pib_mensal)
 length(pib_ipca)
+length(taxa_juros)
 
 # Exportando os dados
 
 # Coluna de data
 
-date <- seq(from = as.Date("2000-01-01"), to = as.Date("2020-02-01"), by = 'month')
+date <- seq(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = 'month')
 
 length(date)
 
@@ -308,6 +343,7 @@ dadosbrutos <- tibble(date,
                       pib_hiato_nom,
                       pib_dessaz,
                       pib_ipca,
+                      taxa_juros,
                        .name_repair = ~  c("date",
                                            "ipca",
                                            'ipa',
@@ -324,9 +360,9 @@ dadosbrutos <- tibble(date,
                                            'pib_hiato_real',
                                            'pib_hiato_nom',
                                            'pib_dessaz',
-                                           'pib_ipca'
+                                           'pib_ipca',
+                                           'taxa_juros'
                                            ))
-
 
 #######################################################################
 #                                                                     #

@@ -20,21 +20,24 @@ load_packages_and_data <- function() {
     }
     )
   }
+  
+  if  (!exists("dadosbrutos")) {
+    return(dadosbrutos_trim)
+  } else {
+    return(dadosbrutos)
+  }
 }
 
-# Seleção automática das variáveis do modelo ####
-# Condicional para a determinação da frequencia das variáveis
-
-get_model_specification <- function() {
+get_model_specification <- function(raw_data) {
   # Function to automatically build the arguments selected previously for the Local
   # Projections estimation functions (both linear and nonlinear versions). This function
   # also builds the naming convention for output figures directories.
+  dados <- raw_data
+  
   if ( model_frequency == 'mensal'){
-    dados <- dadosbrutos
     date <- seq(2000,2020.23,1/12)
     # lambda_hp = 129600
   } else   {
-    dados <- dadosbrutos_trim
     date <- seq(2000.26,2019.99,1/4)
     lambda_hp = 1600
   }
@@ -79,16 +82,7 @@ get_model_specification <- function() {
   }
   
   
-  # Ajuste dos dados da variável de transição (taxa de câmbio)
-  cambio_switching <- dados %>%
-    dplyr::select(cambio) %>%
-    slice(-1)
   
-  if(lag_switch_variable == T){
-    lag_fz <- 1
-  } else {
-    lag_fz <- 0
-  }
   
   if (desemprego_diff == T) {
     if (comm_endo == T) {
@@ -158,6 +152,26 @@ get_model_specification <- function() {
     }
   }
   
+  if (include_interest_rate == T){
+    modelo_endo$taxa_juros <- dados$taxa_juros[2:nrow(dados)]
+  }
+  
+  # Ajuste dos dados da variável de transição (taxa de câmbio)
+  cambio_switching <- dados %>%
+    dplyr::select(cambio) %>%
+    slice(-1)
+  # cambio_switching <- modelo_endo %>%
+  #   dplyr::select(cambio) 
+  
+  if(lag_switch_variable == T){
+    lag_fz <- 1
+  } else {
+    lag_fz <- 0
+  }
+  
+  modelo_endo <- modelo_endo %>%
+    dplyr::select(c(everything(),-ipca),taxa_juros,ipca)
+  
     # Definição dos choques e respostas ####
   response <- grep(paste0("^",inflation_index,"$"), colnames(modelo_endo))
   cambio_shock <- grep('cambio', colnames(modelo_endo))
@@ -195,7 +209,7 @@ get_model_specification <- function() {
                          DA_variable,
                          paste0('(',as.character(lag_endog),')]'),
                          paste0('_gamma[',as.character(gamma_transition),']'),
-                         sig_IC
+                         lambda_hp
     )
   } else {
     nome_modelo = paste0(toupper(model_frequency),
@@ -210,9 +224,11 @@ get_model_specification <- function() {
                          DA_variable,
                          paste0('(',as.character(lag_endog),')]'),
                          paste0('_gamma[',as.character(gamma_transition),']'),
-                         sig_IC
+                         lambda_hp
     )
   }
+  
+  
   # Number of endogenous variables
   n_endo_variables = ncol(modelo_endo)
   endo_variables = colnames(modelo_endo)

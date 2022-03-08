@@ -3,19 +3,19 @@ source('Code/Old/IRF_VLSTAR.R')
 source('Code/Old/rootsSTVAR.R')
 
 # Redefinindo as variáveis do modelo
+modelo_endo <- model_data$modelo_endo
 modelo_endo_df <- data.frame(modelo_endo)
-cambio_switching <- modelo_endo$cambio
+cambio_switching <- model_data$cambio_switching
 cambio_switching_zoo <- zoo(hp_filter(as.matrix(cambio_switching), 14400)[[1]][,])
 plot(ts(cambio_switching_zoo, start = c(2000,1), frequency = 12))
-gamma = 30
-switching_function_3 <- exp(-gamma*cambio_switching_zoo)/(1+exp(-gamma*cambio_switching_zoo))
+gamma = 12
+switching_function_2 <- 1/(1+exp(-start_values[[1]][1]*(cambio_switching_zoo-start_values[[1]][2])))
 
 par(mfrow=c(3,1))
-plot(ts(switching_function_1, start = c(2000,1), frequency = 12))
-plot(ts(switching_function_2, start = c(2000,1), frequency = 12))
 plot(ts(switching_function_3, start = c(2000,1), frequency = 12))
+plot(ts(switching_function_2, start = c(2000,1), frequency = 12))
 
-
+library(starvars)
 # Estimando modelo
 start_values <- startingVLSTAR(
   y = modelo_endo_df,
@@ -24,11 +24,17 @@ start_values <- startingVLSTAR(
   m = 2,
   st = cambio_switching_zoo,
   constant = TRUE,
-  n.combi = 10,
-  ncores = 1,
+  n.combi = 25,
+  ncores = 2,
   singlecgamma = F
 )
+start_values_1 <- start_values
+start_values_1
 start_values
+
+plot(cambio_switching_zoo)
+cambio_switching_zoo %>%
+  filter(cambio > 0.08)
 
 fit_VLSTAR <- VLSTAR(
   y = modelo_endo,
@@ -53,10 +59,10 @@ fit_VLSTAR_lp <- VLSTAR(
   p = lag_endog,
   m = 2,
   st = cambio_switching_zoo,
-  singlecgamma = F,
-  starting = list(matrix(rep(c(6,0),each = 3), ncol = 2)),
+  singlecgamma = T,
+  starting = list(matrix((c(6,0)), ncol = 2)),
   n.iter = 500,
-  method = 'ML',
+  method = 'NLS',
   epsilon = 10^(-3)
 )
 
@@ -71,74 +77,38 @@ str(fit_VLSTAR_lp)
 fit_VLSTAR_lp$obs <- nrow(fit_VLSTAR_lp$fitted)
 fit_VLSTAR_lp$totobs <- nrow(modelo_endo)
 fit_VLSTAR_lp$y <- as.matrix(modelo_endo)
+plot(fit_VLSTAR_lp$st)
+
 # # a few methods for VLSTAR
-# print(fit_VLSTAR)
-# summary(fit_VLSTAR)
-# plot(fit_VLSTAR)
-# predict(fit_VLSTAR, st.num = 1, n.ahead = 1)
-# logLik(fit_VLSTAR, type = 'Univariate')
-# coef(fit_VLSTAR)
+print(fit_VLSTAR_lp)
+summary(fit_VLSTAR_lp)
+plot(fit_VLSTAR_lp)
+predict(fit_VLSTAR_lp, st.num = 1, n.ahead = 1)
+logLik(fit_VLSTAR_lp, type = 'Univariate')
+coef(fit_VLSTAR_lp)
 
 fit_VAR <- VAR(modelo_endo, p=2)
-
+modelo_endo
 rootsSTVAR(fit_VLSTAR)
 rootsSTVAR(fit_VLSTAR_lp)
 
+
 irf_v1 <- irf_VLSTAR(fit_VLSTAR, n.ahead = 18)
-plot.ts(irf_v1$Regime_1$cambio[,2])
-plot.ts(irf_v1$Regime_2$cambio[,2])
+coefs_VLSTAR <- get_coefs_VLSTAR(fit_VLSTAR)
+coefs_VLSTAR
 
-plot.ts(fit_VLSTAR_lp$st)
-plot.ts(cambio_switching_zoo)
-
-
-# 
-K <- ncol(x$Data[[1]])
-nstep <- nstep
-p <- x$p
-
-m <- x$m
-
-coefs_VLSTAR_r1 <- list(t(x$Bhat[(2:(K+1)),]),
-                        t(x$Bhat[((K+2):(K*p+1)),]))
-
-coefs_VLSTAR_r2 <- list(t(x$Bhat[11:14,]),
-                        t(x$Bhat[15:18,]))
+par(mfrow=c(2,1))
+plot.ts(irf_v1$Regime_1$cambio[,4])
+abline(h = 0)
+plot.ts(irf_v1$Regime_2$cambio[,4])
+abline(h = 0)
+fit_VLSTAR$singlecgamma
 
 
-coefficients_loop <- list(coefs_VLSTAR_r1,coefs_VLSTAR_r2)
-Phi_list <- list()
-counter <- 0
-for (i in coefficients_loop) {
-  A <- i
-  if (nstep >= p) {
-    As <- array(0, dim = c(K, K, nstep + 1))
-    for (i in (p + 1):(nstep + 1)) {
-      As[, , i] <- matrix(0, nrow = K, ncol = K)
-    }
-  } else {
-    As <- array(0, dim = c(K, K, p))
-  }
-  for (i in 1:p) {
-    As[, , i] <- A[[i]]
-  }
-  Phi <- array(0, dim = c(K, K, nstep + 1))
-  Phi[, , 1] <- diag(K)
-  Phi[, , 2] <- Phi[, , 1] %*% As[, , 1]
-  if (nstep > 1) {
-    for (i in 3:(nstep + 1)) {
-      tmp1 <- Phi[, , 1] %*% As[, , i - 1]
-      tmp2 <- matrix(0, nrow = K, ncol = K)
-      idx <- (i - 2):1
-      for (j in 1:(i - 2)) {
-        tmp2 <- tmp2 + Phi[, , j + 1] %*% As[, , idx[j]]
-      }
-      Phi[, , i] <- tmp1 + tmp2
+par(mfrow=c(4,1))
 
-    }
-  }
-  counter <- counter + 1
-  Phi_list[[counter]] <- Phi
+for (i in 1:nrow(start_values[[1]])){
+  print(i)
+  switching_function_2 <- 1/(1+exp(-start_values[[1]][i,1]*(cambio_switching_zoo-start_values[[1]][i,2])))
+  plot(ts(switching_function_2, start = c(2000,1), frequency = 12))
 }
-return(Phi_list)
-

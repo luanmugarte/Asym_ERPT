@@ -43,6 +43,7 @@ library(here)
 # library(starvars)
 library(foreach)
 library(remotes)
+library(BETS)
 
 # Testing version of lpirfs package
 remotes::install_github("https://github.com/luanmugarte/lpirfs/tree/testing", ref = '09a332c82f7439dee315845e9b8ca430010576d3')
