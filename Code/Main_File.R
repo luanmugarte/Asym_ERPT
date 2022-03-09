@@ -44,7 +44,7 @@ gamma_transition <- 8
 
 # Lags das variáveis endógenas
 # Escolhido endogenamento pelo criterio HQ
-lag_endog = 4
+lag_endog = 1
 
 # Lags das variáveis exógenas
 lag_exog = 1
@@ -77,9 +77,9 @@ lambda_hp = 192600
 include_interest_rate = T
 
 # Decomposição de Cholesky
-chol_decomp = diag(as.character(NA), nrow = 5, ncol = 5)
+# chol_decomp = diag(as.character(NA), nrow = 5, ncol = 5)
 
-# chol_decomp = NULL
+chol_decomp = NULL
 
 # Rodando função de estimação
 model_obj <- get_model_specification(raw_data)
@@ -90,11 +90,12 @@ model_results <- run_models(model_data,model_specs)
 results_nl <- model_results[[1]]
 results_lin <- model_results[[2]]
 
+
 # Exportando figures
 export_figures(results_nl,results_lin,model_specs)
 
-# Rodando vários modelos ####
 
+# Rodando vários modelos ####
 
 # Escolhas consolidadas 
 # Tendência (1) ou sem tendência (0)
@@ -128,7 +129,7 @@ ext_inflation = 'comm'
 inflation_index = 'ipca'
 
 # Lags das variáveis exógenas
-# lag_exog = 1
+lag_exog = 1
 
 # Outras escolhas #
 
@@ -144,22 +145,26 @@ desemprego_diff = F
 # Taxa de desemprego como variável exógena (mais apropriado para comparação de índices de inflação)
 desemprego_exog = F
 
-# Decomposição de Cholesky
-# chol_decomp = diag(as.character(NA), nrow = 4, ncol = 4)
+# Include interest rate as a endogenous variable
+include_interest_rate = T
 
-chol_decomp = matrix(c(c(NA,0,0,0),
-                       c(0,NA,0,0),
-                       c(0,0,NA,0),
-                       c(0,0,0,NA)),
-                     nrow= 4, ncol =4, byrow= T)
+# Decomposição de Cholesky
+chol_decomp = diag(as.character(NA), nrow = 5, ncol = 5)
+
+# chol_decomp = matrix(c(c(NA,0,0,0),
+#                        c(0,NA,0,0),
+#                        c(0,0,NA,0),
+#                        c(0,0,0,NA)),
+#                      nrow= 4, ncol =4, byrow= T)
+
 # chol_decomp = NULL
 
 # Rodando for loop para gerar os modelos #
 
 
 # Lista de outras opções
-lags_option <- c(3,5)
-DA_option <- c('pib','pib_hiato_real','pib_ipca', 'pimpf','pib_hiato_nom','capacidade')
+lags_option <- c(1:5)
+DA_option <- c('pib','pib_hiato_real', 'pimpf','capacidade')
 
 # Contador simples
 counter <- 0
@@ -179,7 +184,7 @@ for (i in first_loop){
     lag_endog = i
     gamma_transition = 12
     nome_modelo = 'default'
-    lambda_hp = 14400
+    lambda_hp = 192600
     DA_variable = j
     
     model_obj <- get_model_specification(raw_data)
@@ -205,3 +210,6 @@ for (i in first_loop){
       
 }
 
+
+# write_csv(raw_data %>%
+#             mutate(across(-date, ~ as.numeric(.))), file = 'dados.csv')

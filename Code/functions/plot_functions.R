@@ -898,6 +898,72 @@ plot_lin_results <- function(results_lin,specs) {
   # Fim da função
 }
 
+# Função de gráficos de coeficientes e erros padrões
+
+plot_coef_stderr <- function(results_nl,specs) {
+  # Constroi os 4 gráficos dos coeficientes e erros padrões estimados das IRFs
+  # para a interação entre a taxa de câmbio e do índice de preço.
+  
+  
+  # Criando um tibble com os coeficients e erros padrões para fazer o plot
+  tryCatch(expr = {
+    coefs_std_err <- suppressMessages(tibble(bind_cols(1:specs$hor_lps,
+                                    results_nl$b_store_s1[[1]][5,2,],
+                                    results_nl$b_store_s2[[1]][5,2,],
+                                    results_nl$stderr_store_s1[[1]][5,2,],
+                                    results_nl$stderr_store_s2[[1]][5,2,]),
+                          .name_repair = ~ c('horizon',
+                                             paste0('Coef - Cambio x ',
+                                                    stringr::str_to_upper(specs$inflation_index),
+                                                    ' R1'),
+                                             paste0('Coef - Cambio x ',
+                                                    stringr::str_to_upper(specs$inflation_index),
+                                                    ' R2'),
+                                             paste0('StdErr - Cambio x ',
+                                                    stringr::str_to_upper(specs$inflation_index),
+                                                    ' R1'),
+                                             paste0('StdErr - Cambio x ',
+                                                    stringr::str_to_upper(specs$inflation_index),
+                                                    ' R2'))))
+  },
+  error = function(error_in_function){
+    message("Error in Coefs and Std Errors tibble!")
+    print(error_in_function)
+  }
+  )
+  coefs_std_err <- coefs_std_err %>%
+    pivot_longer(c(everything(),-horizon), values_to = 'value', names_to = 'variable')
+  
+  
+  ggplot(data = coefs_std_err, aes(horizon, value)) +
+    # Filtrando para somente gerar intercepto = 0 para gráficos de coefs
+    geom_hline(data = coefs_std_err %>% filter(str_detect(variable, "^Coef")),
+               aes(yintercept = 0), colour= 'darkgrey', linetype = 'dashed') +
+    geom_line(color = "steelblue", size = 1) +
+    geom_point(color="steelblue") + 
+    labs(title = "",y = "", x = "") + 
+    scale_x_continuous(name = "",breaks=seq(1,18,1),) +
+    facet_wrap(~ variable, scales = "free_y") +
+    theme_classic() +
+    theme(  panel.grid = element_blank(), 
+            panel.border = element_blank(),
+            legend.position="right",
+            legend.title = element_text(hjust = 0.5),
+            legend.text = element_text(size=10),
+            legend.key = element_rect(colour = "black"),
+            legend.box.background = element_rect(colour = "black", size = 1),
+            plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
+            plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
+            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
+            axis.text.y = element_text(size=11,colour = 'black'))
+  
+  ggsave(paste0('Coefs_StdErr_',
+                stringr::str_to_upper(specs$inflation_index),'.png'),
+         device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+  
+  # Fim da função
+}
+
 # Function to export figures
 
 export_figures <- function(results_nl,results_lin,specs) {
@@ -918,9 +984,11 @@ export_figures <- function(results_nl,results_lin,specs) {
   if (specs$n_endo_variables == 5) {
     plot_nl_results_5_variables(results_nl,specs,transition_function_results)
     plot_lin_results(results_lin,specs)
+    plot_coef_stderr(results_nl,specs)
   } else if (specs$n_endo_variables == 4) {
     plot_nl_results_4_variables(results_nl,specs,transition_function_results) 
     plot_lin_results(results_lin,specs)
+    plot_coef_stderr(results_nl,specs)
   } else {
     print('Model with only 3 variables not available!')
   }
