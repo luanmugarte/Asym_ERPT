@@ -211,6 +211,15 @@ plot(seas_pimpf)
 pimpf <- pimpfdessaz
 par(mfrow=c(1,1))
 
+
+# Capacidade
+capacidade
+monthplot(capacidade)
+seas_capacidade <- seas(x = capacidade)
+summary(seas_capacidade)
+
+seasonal::qs(seas_capacidade)
+
 # PIB
 pib_mensal
 monthplot(pib_mensal)
@@ -273,24 +282,20 @@ pib_hiato_nom <- (log(pib_dessaz)-pib_mensal.hp$trend)
 pib_hiato_nom
 
 # Deflacionando a Selic
-selic_defl <- selic-ipca_acum
-# selic_defl <- deflateBR::deflate(selic,
-#                                     seq.Date(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = "month"),
-#                                     '01/2000'
-#                                     )
+# selic_defl <- selic-ipca_acum
+selic_defl <- deflateBR::deflate(selic,
+                                    seq.Date(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = "month"),
+                                    '01/2000'
+                                    )
 plot(selic_defl, type = 'l')
 
 # Criando série da taxa de juros
-selic_defl.hp <- hpfilter(selic_defl, freq = 144000, type = 'lambda')
-selic
-
-par(mfrow=c(2,1))
-plot(selic_defl) 
-plot(selic-selic_defl.hp$trend)
+selic_defl.hp_1 <- hpfilter(selic_defl, freq = 192600, type = 'lambda')
 
 par(mfrow=c(1,1))
 taxa_juros <- (selic)-selic_defl.hp$trend
 plot(taxa_juros)
+
 
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$##
@@ -315,6 +320,7 @@ length(pib_hiato_nom)
 length(pib_mensal)
 length(pib_ipca)
 length(taxa_juros)
+length(selic)
 
 # Exportando os dados
 
@@ -345,6 +351,7 @@ dadosbrutos <- tibble(date,
                       pib_dessaz,
                       pib_ipca,
                       taxa_juros,
+                      selic,
                        .name_repair = ~  c("date",
                                            "ipca",
                                            'ipa',
@@ -362,7 +369,8 @@ dadosbrutos <- tibble(date,
                                            'pib_hiato_nom',
                                            'pib_dessaz',
                                            'pib_ipca',
-                                           'taxa_juros'
+                                           'taxa_juros',
+                                           'selic'
                                            ))
 
 #######################################################################

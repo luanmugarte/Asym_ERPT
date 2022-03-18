@@ -159,6 +159,12 @@ plot_nl_results_4_variables <- function(results_nl,specs,
       geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
       geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
+      geom_point(data = IRF_s1 %>% add_column(horizon = c(0:(hor_lps))) %>%
+                  filter(if_all(-horizon, ~ .x > 0) |
+                           if_all(-horizon, ~ .x < 0)) %>%
+                   slice(-1),
+                aes(x=horizon, y = IRF),  colour = 'cadetblue', size = 3,
+                shape = 24, fill = 'cadetblue', stroke = 2) +
       geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'cadetblue', size = 0.75) +
       scale_x_continuous(name = "",breaks=seq(0,18,1), 
       ) +
@@ -232,6 +238,12 @@ plot_nl_results_4_variables <- function(results_nl,specs,
       geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
       geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
+      geom_point(data = IRF_s2 %>% add_column(horizon = c(0:(hor_lps))) %>%
+                   filter(if_all(-horizon, ~ .x > 0) |
+                            if_all(-horizon, ~ .x < 0)) %>%
+                   slice(-1),
+                aes(x=horizon, y = IRF),  colour = 'bisque3', size = 3,
+                shape = 24, fill = 'bisque3', stroke = 2) +
       geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'bisque3', size = 0.75) +
       scale_x_continuous(name = "",breaks=seq(0,18,1), 
       ) +
@@ -476,6 +488,12 @@ plot_nl_results_5_variables <- function(results_nl,specs,transition_function_res
       geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF_lower, ymax =IRF), fill = "GREY90") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
+      geom_point(data = IRF_s1 %>% add_column(horizon = c(0:(hor_lps))) %>%
+                   filter(if_all(-horizon, ~ .x > 0) |
+                            if_all(-horizon, ~ .x < 0)) %>%
+                   slice(-1),
+                aes(x=horizon, y = IRF),  colour = 'cadetblue', size = 3,
+                shape = 24, fill = 'cadetblue', stroke = 2) +
       geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
       geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'cadetblue', size = 0.75) +
       scale_x_continuous(name = "",breaks=seq(0,18,1), 
@@ -553,6 +571,12 @@ plot_nl_results_5_variables <- function(results_nl,specs,transition_function_res
       geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF_lower, ymax =IRF), fill = "GREY90") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
+      geom_point(data = IRF_s2 %>% add_column(horizon = c(0:(hor_lps))) %>%
+                   filter(if_all(-horizon, ~ .x > 0) |
+                            if_all(-horizon, ~ .x < 0)) %>%
+                   slice(-1),
+                aes(x=horizon, y = IRF),  colour = 'bisque3', size = 3,
+                shape = 24, fill = 'bisque3', stroke = 2) +
       geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
       geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'bisque3', size = 0.75) +
       scale_x_continuous(name = "",breaks=seq(0,18,1), 
@@ -776,6 +800,12 @@ plot_lin_results <- function(results_lin,specs) {
       geom_ribbon(aes(x=c(0:hor_lps), ymin=IRF_lower, ymax =IRF), fill = "GREY90") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_upper), color = "GREY70") +
       geom_line(aes(x=c(0:hor_lps), y=IRF_lower), color = "GREY70") +
+      geom_point(data = IRF_lin %>% add_column(horizon = c(0:(hor_lps))) %>%
+                   filter(if_all(-horizon, ~ .x > 0) |
+                            if_all(-horizon, ~ .x < 0)) %>%
+                   slice(-1),
+                aes(x=horizon, y = IRF),  colour = 'cadetblue', size = 3,
+                shape = 24, fill = 'cadetblue', stroke = 2) +
       geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
       geom_line(aes(x=c(0:hor_lps), y=IRF), colour = 'cadetblue', size = 0.75) +
       scale_x_continuous(name = "",breaks=seq(0,18,1), 

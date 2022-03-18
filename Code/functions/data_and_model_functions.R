@@ -154,6 +154,10 @@ get_model_specification <- function(raw_data) {
     modelo_endo$taxa_juros <- dados$taxa_juros[2:nrow(dados)]
   }
   
+  if (include_selic == T){
+    modelo_endo$selic <- dados$selic[2:nrow(dados)]
+  }
+  
   # Ajuste dos dados da variável de transição (taxa de câmbio)
   cambio_switching <- dados %>%
     dplyr::select(cambio) %>%
@@ -195,10 +199,8 @@ get_model_specification <- function(raw_data) {
   
   
   if (comm_endo == T) {
-    nome_modelo = paste0('endo[',
-                         ext_inflation,
-                         '_',
-                         DA_variable,
+    nome_modelo = paste0('endo[',str_flatten(vars_order,collapse = '_') %>%
+                           str_replace_all(c('_cambio' = '', '_ipca' = '')),
                          paste0('(',as.character(lag_endog),')]'),
                          paste0('_gamma[',as.character(gamma_transition),']'),
                          lambda_hp,
