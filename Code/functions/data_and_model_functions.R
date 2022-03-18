@@ -56,13 +56,11 @@ get_model_specification <- function(raw_data) {
     modelo_exog <- data.frame(dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
     colnames(modelo_exog) <- 'gfc_dummy'
     contemp_effect_lp <- NULL
-    lag_exog <- 16
   } else if (include_gfc_dummy == T & comm_endo == F) {
     # Caso em que há dummy e inflação externa como variáveis exógenas
     modelo_exog <- data.frame(ext_inflation_df,dadosbrutos$gfc_dummy[2:length(dadosbrutos$gfc_dummy)])
     colnames(modelo_exog) <- c(ext_inflation,'gfc_dummy')
     contemp_effect_lp <- NULL
-    lag_exog <- 1
   } else if (include_gfc_dummy == F & comm_endo == F) {
     # Caso em que há somente inflação externa como variável exógena
     modelo_exog <- data.frame(ext_inflation_df)
@@ -160,19 +158,18 @@ get_model_specification <- function(raw_data) {
   cambio_switching <- dados %>%
     dplyr::select(cambio) %>%
     slice(-1)
-  # cambio_switching <- modelo_endo %>%
-  #   dplyr::select(cambio) 
   
   if(lag_switch_variable == T){
     lag_fz <- 1
   } else {
     lag_fz <- 0
   }
-  
+
+  # Implemetação da ordem das variáveis endógenas
   modelo_endo <- modelo_endo %>%
-    dplyr::select(c(everything(),-ipca),taxa_juros,ipca)
+    dplyr::select(all_of(vars_order))
   
-    # Definição dos choques e respostas ####
+  # Definição dos choques e respostas #
   response <- grep(paste0("^",inflation_index,"$"), colnames(modelo_endo))
   cambio_shock <- grep('cambio', colnames(modelo_endo))
   
@@ -198,18 +195,15 @@ get_model_specification <- function(raw_data) {
   
   
   if (comm_endo == T) {
-    nome_modelo = paste0(toupper(model_frequency),
-                         '_exo',
-                         '[',
-                         name_trend,
-                         dummy_gfc,
-                         ']_endo[',
+    nome_modelo = paste0('endo[',
                          ext_inflation,
                          '_',
                          DA_variable,
                          paste0('(',as.character(lag_endog),')]'),
                          paste0('_gamma[',as.character(gamma_transition),']'),
-                         lambda_hp
+                         lambda_hp,
+                         '_Cho',
+                         dim(chol_decomp)[1]
     )
   } else {
     nome_modelo = paste0(toupper(model_frequency),
@@ -255,7 +249,8 @@ get_model_specification <- function(raw_data) {
                       n_endo_variables    = n_endo_variables,
                       endo_variables      = endo_variables,
                       response            = response,
-                      cambio_shock        = cambio_shock
+                      cambio_shock        = cambio_shock,
+                      vars_order          = vars_order
                   
                       )
     
@@ -267,7 +262,6 @@ get_model_specification <- function(raw_data) {
     
   return(list(model_specs,model_data))
 }
-# get_model_specification()
 
 run_models <- function(data,specs){
   # Evitando conflitos entre pacotes
@@ -290,8 +284,8 @@ run_models <- function(data,specs){
     contemp_data = specs$contemp_effect_lp, # Variáveis exógenas com efeito contemporâneo
     exog_data = data$modelo_exog, # Variáveis exógenas com efeitos defasados
     lags_exog = specs$lag_exog, # Lags das variáveis exógenas
-    nw_prewhite = F,
-    adjust_se = F,
+    nw_prewhite = pre_white,
+    adjust_se = adjust_se,
     chol_decomp = specs$chol_decomp
   )
   
@@ -307,8 +301,8 @@ run_models <- function(data,specs){
     contemp_data = specs$contemp_effect_lp, # Variáveis exógenas com efeito contemporâneo
     exog_data = data$modelo_exog, # Variáveis exógenas com efeitos defasados
     lags_exog = specs$lag_exog, # Lags das variáveis exógenas
-    nw_prewhite = F,
-    adjust_se = F,
+    nw_prewhite = pre_white,
+    adjust_se = adjust_se,
     chol_decomp = specs$chol_decomp
   )
   

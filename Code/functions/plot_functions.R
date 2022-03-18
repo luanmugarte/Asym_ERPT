@@ -1,8 +1,6 @@
-# Elaboração dos gráficos para o modelo de LP com 4 variáveis endógenas (comm exógeno)
+# Construção dos gráficos dos resultados das LP's
 
-# Obtendo o objeto dos plots ####
-
-# Funções não lineares --------------------------------------------------
+# Funções para os modelos não lineares -----------------------------------------
 
 # Função de transição da estimação ####
 
@@ -10,9 +8,15 @@
 # Regime 2 é a probabilidade do evento da variável de transição. 
 plot_transition_function <- function(results_nl,specs) {
   if (specs$model_frequency == 'mensal') {
-    transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2020,1), frequency = 12))
+    transition_function <- as.xts(ts(results_nl$fz,
+                                     start = c(2000,2),
+                                     end = c(2020,1),
+                                     frequency = 12))
   } else {
-    transition_function <- as.xts(ts(results_nl$fz, start = c(2000,2), end = c(2019,4), frequency = 4))
+    transition_function <- as.xts(ts(results_nl$fz,
+                                     start = c(2000,2),
+                                     end = c(2019,4),
+                                     frequency = 4))
   }
   
   transition_function["2002:10"]
@@ -68,7 +72,8 @@ plot_transition_function <- function(results_nl,specs) {
   
   # Plotando o gráfico da função de transição
   ggplot(df)  + 
-    geom_line(aes(x=date, y=transition_function), size = 0.75, color = 'darkred') +
+    geom_line(aes(x=date, y=transition_function),
+              size = 0.75, color = 'darkred') +
     scale_x_continuous(breaks=seq(2000,2020.23,0.5),                       
                        labels=paste0(c("Jan ",'Jun '),
                                      c(rep(2000:2019,each=2),2020)),
@@ -99,13 +104,15 @@ plot_transition_function <- function(results_nl,specs) {
   
   ggsave(paste0('Funcao_Transicao_',
                 stringr::str_to_upper(specs$inflation_index),'.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   # End function
   return(list(regime_1 = regime_1,regime_2 = regime_2))
 }
 
 # Funções de Impulso Resposta com 4 variáveis endógenas (4 gráficos de IRFs) ####
-plot_nl_results_4_variables <- function(results_nl,specs,transition_function_results) {
+plot_nl_results_4_variables <- function(results_nl,specs,
+                                        transition_function_results) {
   # Elabora os 4 gráficos das IRF's e do cálculo do repasse cambial conforme Belaisch (2003). 
   # É "necessário" duas funções diferentes pelo fato do número de gráficos serem diferentes.
   
@@ -134,8 +141,6 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
                          results_nl$irf_s1_up[specs$response,,i],
                          results_nl$irf_s1_low[specs$response,,i]),
                .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        # mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
-        # mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, IRF_lower_base,IRF_upper_base)) %>%
         mutate(IRF_upper = IRF_upper_base) %>%
         mutate(IRF_lower = IRF_lower_base) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
@@ -190,10 +195,10 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
     draw_plot(plot_lst[[4]], x = 0.5, y = 0, height = .5, width = .5)
   
   
-  # ggsave(paste0(nome_modelo,'_',regime_1),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   ggsave(paste0('IRF_',
                 stringr::str_to_upper(specs$inflation_index),
                 '_',regime_1,'.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   
@@ -202,19 +207,6 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
   # Criando um vetor que contem os objetos dos plots
   plot_lst <- vector("list", length = specs$n_endo_variables)
   
-  
-  
-  
-  # IRF_s2 <- suppressMessages(tibble(bind_cols(results_nl$irf_s2_mean[specs$response,,i],
-  #                                             results_nl$irf_s2_up[specs$response,,i],
-  #                                             results_nl$irf_s2_low[specs$response,,i]),
-  #                                   .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-  #   mutate(IRF_upper = IRF_upper_base) %>%
-  #   mutate(IRF_lower = IRF_lower_base) %>%
-  #   dplyr::select(!c(IRF_upper_base,IRF_lower_base))
-  # 
-
-  # For loop para fazer o gráfico da IRF para cada variável de resposta
   for (i in 1:(specs$n_endo_variables)) {
     
     tryCatch(expr = {
@@ -223,10 +215,6 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
                          results_nl$irf_s2_up[specs$response,,i],
                          results_nl$irf_s2_low[specs$response,,i]),
                .name_repair = ~ c('IRF','IRF_upper_base','IRF_lower_base'))) %>%
-        # mutate(IRF_upper = if_else(IRF_upper_base < IRF_lower_base, 
-        #                            IRF_lower_base,IRF_upper_base)) %>%
-        # mutate(IRF_lower = if_else(IRF_upper_base > IRF_lower_base, 
-        #                            IRF_lower_base,IRF_upper_base)) %>%
         mutate(IRF_upper = IRF_upper_base) %>%
         mutate(IRF_lower = IRF_lower_base) %>%
         dplyr::select(!c(IRF_upper_base,IRF_lower_base))
@@ -282,9 +270,8 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
   
   ggsave(paste0('IRF_',
                 stringr::str_to_upper(specs$inflation_index),
-                '_',
-                regime_2,
-                '.png'),
+                '_',regime_2,'.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   
@@ -296,14 +283,15 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
   
   # Criando tibble com os dados de CI e da LP (Regime 1)
   tryCatch(expr = {
-    RC_r1 <- suppressMessages(tibble(bind_cols(cumsum((results_nl$irf_s1_mean[specs$response,,specs$cambio_shock])
-                                                      /cumsum(results_nl$irf_s1_mean[specs$cambio_shock,,specs$cambio_shock])),
-                                               results_nl$irf_s1_mean[specs$response,,specs$cambio_shock],
-                                               results_nl$irf_s1_up[specs$response,,specs$cambio_shock],
-                                               results_nl$irf_s1_low[specs$response,,specs$cambio_shock],
-                                               results_nl$irf_s1_mean[specs$cambio_shock,,specs$cambio_shock],
-                                               results_nl$irf_s1_up[specs$cambio_shock,,specs$cambio_shock],
-                                               results_nl$irf_s1_low[specs$cambio_shock,,specs$cambio_shock]),
+    RC_r1 <- suppressMessages(
+      tibble(bind_cols(cumsum((results_nl$irf_s1_mean[specs$response,,specs$cambio_shock])
+                       /cumsum(results_nl$irf_s1_mean[specs$cambio_shock,,specs$cambio_shock])),
+                       results_nl$irf_s1_mean[specs$response,,specs$cambio_shock],
+                       results_nl$irf_s1_up[specs$response,,specs$cambio_shock],
+                       results_nl$irf_s1_low[specs$response,,specs$cambio_shock],
+                       results_nl$irf_s1_mean[specs$cambio_shock,,specs$cambio_shock],
+                       results_nl$irf_s1_up[specs$cambio_shock,,specs$cambio_shock],
+                       results_nl$irf_s1_low[specs$cambio_shock,,specs$cambio_shock]),
                                      .name_repair = ~ c('RC',
                                                         'Inflation_Index_mean',
                                                         'Inflation_Index_upper',
@@ -320,25 +308,26 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
   
   
   # Criando tibble que define os momentos de significância estatística de ambos as LP's
-  # df.new <- RC_r1 %>%
-  #   mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)) &
-  #                                 ((cambio_lower >0 ) & (cambio_upper > 0)  | (cambio_lower <0) & (cambio_upper < 0)),
-  #                               1,
-  #                               0))
   df.new <- RC_r1 %>%
-    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
+    mutate(., sig_RC = if_else( ((Inflation_Index_lower > 0) & (Inflation_Index_upper > 0) 
+                                 | (Inflation_Index_lower < 0) & (Inflation_Index_upper < 0)),
                                 1,
                                 0))
   df.new$sig_RC[1] <- 0 # Primeiro período nunca tem IC
   df.new
   
   # Criando o dataframe que estabelece os momentos a serem localizados pelo ggplot
-  rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), xend = (which(df.new['sig_RC'] == 1)))
+  rects <- data.frame(xstart = (which(df.new['sig_RC'] == 1)-1), 
+                      xend = (which(df.new['sig_RC'] == 1)))
   rects
   
   # Criando o gráfico
   RC_r1_plot <- ggplot(RC_r1)  + 
-    {if(nrow(rects)>0) geom_rect(data = rects, aes(xmin = xstart, xmax = xend, ymin = -Inf, ymax = Inf), fill = 'lightblue', alpha = 0.4, show.legend = F)} +
+    {if(nrow(rects)>0) geom_rect(data = rects,
+                                 aes(xmin = xstart, xmax = xend, 
+                                     ymin = -Inf, ymax = Inf), 
+                                 fill = 'lightblue', 
+                                 alpha = 0.4, show.legend = F)} +
     geom_hline(yintercept = 0, colour= 'darkgrey', linetype = 'dashed') +
     geom_line(aes(x=c(0:hor_lps), y=RC), colour = 'darkgrey', size = 0.75) +
     scale_x_continuous(name = "",breaks=seq(0,18,1),) +
@@ -354,8 +343,13 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
             legend.key = element_rect(colour = "black"),
             legend.box.background = element_rect(colour = "black", size = 1),
             plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
-            plot.title = ggtext::element_markdown(size = 10, colour = 'black', hjust = 0.5),
-            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
+            plot.title = ggtext::element_markdown(size = 10, 
+                                                  colour = 'black',
+                                                  hjust = 0.5),
+            axis.text.x = element_text(angle = 45,
+                                       vjust = 0.6,
+                                       hjust = 0.6,
+                                       size=11, colour = 'black'),
             axis.text.y = element_text(size=11,colour = 'black'))
   
   # Criando tibble com os dados de CI e da LP (Regime 2)
@@ -429,6 +423,7 @@ plot_nl_results_4_variables <- function(results_nl,specs,transition_function_res
   
   ggsave(paste0('RC_',
                 stringr::str_to_upper(specs$inflation_index),'_v1.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
 
@@ -523,6 +518,7 @@ plot_nl_results_5_variables <- function(results_nl,specs,transition_function_res
   ggsave(paste0('IRF_',
                 stringr::str_to_upper(specs$inflation_index),
                 '_',regime_1,'.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   
@@ -592,6 +588,7 @@ plot_nl_results_5_variables <- function(results_nl,specs,transition_function_res
   ggsave(paste0('IRF_',
                 stringr::str_to_upper(specs$inflation_index),
                 '_',regime_2,'.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   #---------------------------------------------------------------------#
@@ -730,8 +727,9 @@ plot_nl_results_5_variables <- function(results_nl,specs,transition_function_res
     draw_plot(RC_r2_plot, x = 0, y = 0, height = .5, width = 1)
   
   ggsave(paste0('RC_',
-                stringr::str_to_upper(specs$inflation_index),
-                '_v1.png'),device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+                stringr::str_to_upper(specs$inflation_index),'_v1.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
+         device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   # Fim da função
 }
@@ -747,7 +745,7 @@ plot_lin_results <- function(results_lin,specs) {
   #                                                                     #
   #---------------------------------------------------------------------#
   
-  # IRF
+  # IRF - CAMBIO -> IPCA
   
   # Criando um vetor que contem os objetos dos plots
   plot_lst <- vector("list", length = specs$n_endo_variables)
@@ -819,6 +817,7 @@ plot_lin_results <- function(results_lin,specs) {
   
   ggsave(paste0('IRF_linear_',
                 stringr::str_to_upper(specs$inflation_index),'.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   
@@ -893,6 +892,7 @@ plot_lin_results <- function(results_lin,specs) {
   
   ggsave(paste0('RC_linear_',
                 stringr::str_to_upper(specs$inflation_index),'_v1.png'),
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   # Fim da função
@@ -900,48 +900,65 @@ plot_lin_results <- function(results_lin,specs) {
 
 # Função de gráficos de coeficientes e erros padrões
 
-plot_coef_stderr <- function(results_nl,specs) {
-  # Constroi os 4 gráficos dos coeficientes e erros padrões estimados das IRFs
-  # para a interação entre a taxa de câmbio e do índice de preço.
+plot_coef_stderr <- function(results_nl,specs,transition_function_results) {
+  # Constroi gráficos dos coeficientes e erros padrões estimados das IRFs
+  
+  # Estabelecendo regimes
+  regime_1 <- transition_function_results$regime_1
+  regime_2 <- transition_function_results$regime_2
   
   
-  # Criando um tibble com os coeficients e erros padrões para fazer o plot
+  # Cambio (regressor) ---------------------------------------------
+  
+  # Creating empty vectors to store vector names
+  col_names_coefs_r1 <- character(length(specs$n_endo_variables))
+  col_names_coefs_r2 <- character(length(specs$n_endo_variables))
+  col_names_stderr_r1 <- character(length(specs$n_endo_variables))
+  col_names_stderr_r2 <- character(length(specs$n_endo_variables))
+  
+  for (i in specs$endo_variables){
+    col_names_coefs_r1 <- c(col_names_coefs_r1,paste0('Coefs - ',i,' x cambio R1'))
+    col_names_coefs_r2 <- c(col_names_coefs_r2,paste0('Coefs - ',i,' x cambio R2'))
+    col_names_stderr_r1 <- c(col_names_stderr_r1,paste0('Std Err - ',i,' x cambio R1'))
+    col_names_stderr_r2 <- c(col_names_stderr_r2,paste0('Std Err - ',i,' x cambio R2'))
+  }
+  
+  col_names_coefs_stderr <- c(col_names_coefs_r1[2:(specs$n_endo_variables+1)],
+                              col_names_coefs_r2[2:(specs$n_endo_variables+1)],
+                              col_names_stderr_r1[2:(specs$n_endo_variables+1)],
+                              col_names_stderr_r2[2:(specs$n_endo_variables+1)])
+  
+  col_names_coefs_stderr
+  
+  # Criando um tibble com os coeficients e erros padrões das interações do cambio
   tryCatch(expr = {
     coefs_std_err <- suppressMessages(tibble(bind_cols(1:specs$hor_lps,
-                                    results_nl$b_store_s1[[1]][5,2,],
-                                    results_nl$b_store_s2[[1]][5,2,],
-                                    results_nl$stderr_store_s1[[1]][5,2,],
-                                    results_nl$stderr_store_s2[[1]][5,2,]),
-                          .name_repair = ~ c('horizon',
-                                             paste0('Coef - Cambio x ',
-                                                    stringr::str_to_upper(specs$inflation_index),
-                                                    ' R1'),
-                                             paste0('Coef - Cambio x ',
-                                                    stringr::str_to_upper(specs$inflation_index),
-                                                    ' R2'),
-                                             paste0('StdErr - Cambio x ',
-                                                    stringr::str_to_upper(specs$inflation_index),
-                                                    ' R1'),
-                                             paste0('StdErr - Cambio x ',
-                                                    stringr::str_to_upper(specs$inflation_index),
-                                                    ' R2'))))
-  },
-  error = function(error_in_function){
-    message("Error in Coefs and Std Errors tibble!")
-    print(error_in_function)
-  }
-  )
+                                    (t(results_nl$b_store_s1[[1]][,model_specs$cambio_shock,])),
+                                    (t(results_nl$b_store_s2[[1]][,model_specs$cambio_shock,])),
+                                    (t(results_nl$stderr_store_s1[[1]][,model_specs$cambio_shock,])),
+                                    (t(results_nl$stderr_store_s2[[1]][,model_specs$cambio_shock,]))),
+                          .name_repair = ~ c('horizon',col_names_coefs_stderr)))  
+    },
+    error = function(error_in_function){
+      message("Error in Coefs and Std Errors tibble!")
+      print(error_in_function)
+    }
+    )
+  
+  coefs_std_err
+  
   coefs_std_err <- coefs_std_err %>%
     pivot_longer(c(everything(),-horizon), values_to = 'value', names_to = 'variable')
   
   
-  ggplot(data = coefs_std_err, aes(horizon, value)) +
+  coefs_stderr_ER_plot <- ggplot(data = coefs_std_err, aes(horizon, value)) +
     # Filtrando para somente gerar intercepto = 0 para gráficos de coefs
     geom_hline(data = coefs_std_err %>% filter(str_detect(variable, "^Coef")),
                aes(yintercept = 0), colour= 'darkgrey', linetype = 'dashed') +
     geom_line(color = "steelblue", size = 1) +
     geom_point(color="steelblue") + 
-    labs(title = "",y = "", x = "") + 
+    labs(title = paste0("Interações de câmbio (regressor) com outras variáveis - R1 = ",
+                        regime_1),y = "", x = "") + 
     scale_x_continuous(name = "",breaks=seq(1,18,1),) +
     facet_wrap(~ variable, scales = "free_y") +
     theme_classic() +
@@ -957,8 +974,85 @@ plot_coef_stderr <- function(results_nl,specs) {
             axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
             axis.text.y = element_text(size=11,colour = 'black'))
   
+  ggsave(paste0('Coefs_StdErr_Cambio.png'),
+         plot = coefs_stderr_ER_plot,
+         path = file.path('Output/Figures/', specs$nome_modelo),
+         device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
+  
+  
+  # IPCA (regressando) ---------------------------------------------
+  
+  # Creating empty vectors to store vector names
+  col_names_coefs_r1 <- character(length(specs$n_endo_variables))
+  col_names_coefs_r2 <- character(length(specs$n_endo_variables))
+  col_names_stderr_r1 <- character(length(specs$n_endo_variables))
+  col_names_stderr_r2 <- character(length(specs$n_endo_variables))
+  
+  for (i in specs$endo_variables){
+    col_names_coefs_r1 <- c(col_names_coefs_r1,paste0('Coefs - ipca x ',i,' R1'))
+    col_names_coefs_r2 <- c(col_names_coefs_r2,paste0('Coefs - ipca x ',i,' R2'))
+    col_names_stderr_r1 <- c(col_names_stderr_r1,paste0('Std Err - ipca x ',i,' R1'))
+    col_names_stderr_r2 <- c(col_names_stderr_r2,paste0('Std Err - ipca x ',i,' R2'))
+  }
+  
+  col_names_coefs_stderr <- c(col_names_coefs_r1[2:(specs$n_endo_variables+1)],
+                              col_names_coefs_r2[2:(specs$n_endo_variables+1)],
+                              col_names_stderr_r1[2:(specs$n_endo_variables+1)],
+                              col_names_stderr_r2[2:(specs$n_endo_variables+1)])
+  
+  col_names_coefs_stderr
+  
+  # Criando um tibble com os coeficients e erros padrões das interações do cambio
+  tryCatch(expr = {
+    coefs_std_err <- suppressMessages(tibble(bind_cols(1:specs$hor_lps,
+                                                       (t(results_nl$b_store_s1[[1]][model_specs$response,,])),
+                                                       (t(results_nl$b_store_s2[[1]][model_specs$response,,])),
+                                                       (t(results_nl$stderr_store_s1[[1]][model_specs$response,,])),
+                                                       (t(results_nl$stderr_store_s2[[1]][model_specs$response,,]))),
+                                             .name_repair = ~ c('horizon',col_names_coefs_stderr)))  
+  },
+  error = function(error_in_function){
+    message("Error in Coefs and Std Errors tibble!")
+    print(error_in_function)
+  }
+  )
+  
+  coefs_std_err
+  
+  coefs_std_err <- coefs_std_err %>%
+    pivot_longer(c(everything(),-horizon), values_to = 'value', names_to = 'variable')
+  
+  
+  coefs_stderr_IPCA_plot <- ggplot(data = coefs_std_err, aes(horizon, value)) +
+    # Filtrando para somente gerar intercepto = 0 para gráficos de coefs
+    geom_hline(data = coefs_std_err %>% filter(str_detect(variable, "^Coef")),
+               aes(yintercept = 0), colour= 'darkgrey', linetype = 'dashed') +
+    geom_line(color = "steelblue", size = 1) +
+    geom_point(color="steelblue") + 
+    labs(title = paste0("Interações de",
+                        stringr::str_to_upper(specs$inflation_index),
+                        " (regressor) com outras variáveis - R1 = ",
+                        regime_1),y = "", x = "") + 
+    scale_x_continuous(name = "",breaks=seq(1,18,1),) +
+    facet_wrap(~ variable, scales = "free_y") +
+    theme_classic() +
+    theme(  panel.grid = element_blank(), 
+            panel.border = element_blank(),
+            legend.position="right",
+            legend.title = element_text(hjust = 0.5),
+            legend.text = element_text(size=10),
+            legend.key = element_rect(colour = "black"),
+            legend.box.background = element_rect(colour = "black", size = 1),
+            plot.margin=grid::unit(c(0,-2,0,-5), "mm"),
+            plot.title = ggtext::element_markdown(size = 9, colour = 'black'),
+            axis.text.x = element_text(angle = 45, vjust = 0.6, hjust = 0.6,size=11, colour = 'black'),
+            axis.text.y = element_text(size=11,colour = 'black'))
+  
+  
   ggsave(paste0('Coefs_StdErr_',
                 stringr::str_to_upper(specs$inflation_index),'.png'),
+         plot =  coefs_stderr_IPCA_plot,
+         path = file.path('Output/Figures/', specs$nome_modelo),
          device = "png",width = 12, height = 8, units = "cm",scale = 2.5)
   
   # Fim da função
@@ -975,8 +1069,7 @@ export_figures <- function(results_nl,results_lin,specs) {
   ifelse(!dir.exists(file.path('Output/Figures', specs$nome_modelo)),
          dir.create(file.path('Output/Figures', specs$nome_modelo)),
          FALSE)
-  setwd(file.path('Output/Figures/', specs$nome_modelo))
-  
+
   # # Getting the regimes names
   transition_function_results <- plot_transition_function(results_nl,specs)
 
@@ -984,11 +1077,11 @@ export_figures <- function(results_nl,results_lin,specs) {
   if (specs$n_endo_variables == 5) {
     plot_nl_results_5_variables(results_nl,specs,transition_function_results)
     plot_lin_results(results_lin,specs)
-    plot_coef_stderr(results_nl,specs)
+    plot_coef_stderr(results_nl,specs,transition_function_results)
   } else if (specs$n_endo_variables == 4) {
     plot_nl_results_4_variables(results_nl,specs,transition_function_results) 
     plot_lin_results(results_lin,specs)
-    plot_coef_stderr(results_nl,specs)
+    plot_coef_stderr(results_nl,specs,transition_function_results)
   } else {
     print('Model with only 3 variables not available!')
   }
@@ -1011,19 +1104,24 @@ export_figures <- function(results_nl,results_lin,specs) {
                    desemprego_exog = specs$desemprego_exog,
                    hor_lps = specs$hor_lps,
                    lambda_hp = specs$lambda_hp,
-                   d = c('dimensions' = c(dim(results_nl$d)))
+                   nw_prewhite = pre_white,
+                   adjust_se = adjust_se,
+                   chol_decomp = c('dimensions' = c(dim(specs$chol_decomp))),
+                   vars_order = specs$vars_order
   )
   
   config_list <- data.frame(config_list)
   
-  output_without_message <- capture.output(stargazer(stargazer(config_list,
-                                                               summary = FALSE,
-                                                               type = "text",
-                                                               out = paste0("config_",stringr::str_to_upper(inflation_index),".txt"))
+  output_without_message <- capture.output(
+    stargazer(stargazer(config_list,
+                        summary = FALSE,
+                        type = "text",
+                        out = file.path(paste0('Output/Figures/', 
+                                               specs$nome_modelo,'/',
+                                               "config_",
+                                               stringr::str_to_upper(inflation_index),
+                                               ".txt")))
   ))
   
-  # Aditional reconfiguration of working directory in case of multiple models are run
-  path_directory <- '/home/luanmugarte/Artigos/Asym_ERPT'
-  setwd(path_directory)
 
 }

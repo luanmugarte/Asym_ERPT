@@ -256,14 +256,6 @@ par(mfrow=c(1,1))
 pib_hiato_real <- (log(pib_ipca)-pib_ipca.hp$trend)
 pib_hiato_real
 
-# Deflacionando a Selic
-
-# selic_defl <- deflate(selic,ipca_acum, type = 'perc')
-selic_defl <- deflateBR::deflate(selic,
-                                    seq.Date(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = "month"),
-                                    '01/2000'
-                                    )
-selic_defl
 # Extraindo hiato do produto
 pib_dessaz
 pib_mensal.hp <- hpfilter(log(pib_dessaz), freq = 192600, type = 'lambda')
@@ -280,8 +272,16 @@ par(mfrow=c(1,1))
 pib_hiato_nom <- (log(pib_dessaz)-pib_mensal.hp$trend)
 pib_hiato_nom
 
+# Deflacionando a Selic
+selic_defl <- selic-ipca_acum
+# selic_defl <- deflateBR::deflate(selic,
+#                                     seq.Date(from = as.Date("2000-01-01"), to = as.Date("2020-01-01"), by = "month"),
+#                                     '01/2000'
+#                                     )
+plot(selic_defl, type = 'l')
+
 # Criando série da taxa de juros
-selic_defl.hp <- hpfilter(selic_defl, freq = 192600, type = 'lambda')
+selic_defl.hp <- hpfilter(selic_defl, freq = 144000, type = 'lambda')
 selic
 
 par(mfrow=c(2,1))
@@ -291,6 +291,7 @@ plot(selic-selic_defl.hp$trend)
 par(mfrow=c(1,1))
 taxa_juros <- (selic)-selic_defl.hp$trend
 plot(taxa_juros)
+
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$##
 #                                                                     #

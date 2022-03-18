@@ -14,6 +14,8 @@ Talvez tentar incluir taxa de juros como uma variável de controle para a dinâm
 
 Adotei 8, pois pareceu um valor razoável em termos da rapidez de mudança de regime (já que a intenção é diferenciar entre regimes de depreciação e apreciação), além de que não capta a incerteza dos regimes em momentos de baixa volatilidade.
 
+Impacta minimamente os coeficientes da interação de câmbio e IPCA e seus erros padrões.
+
 ### Trim vs Mensal
 
 Escolha final: **mensal**
@@ -57,6 +59,7 @@ Melhores resultados com configurações:
 
 Boa variável de DA, mas suscetível à crítica (heterodoxa) pelo uso do hiato. Também gera IRFs de desemprego estranhas com lag = 1. Com petro, gera resultados melhores.
 
+
 **Escolha final**: PIB
 
 ## Decomposições de Cholesky
@@ -73,7 +76,14 @@ Gera resultados bons
 
 Gera magnitudes de IRFs grandes e significancia reduzida, especialmente em períodos mais longes. Resultados um pouco melhores para p > 5.
 
-### Personalizada 1 (comm exo, pib exo, cambio exo, ipca dep de comm e cambio)
+```  [,1] [,2] [,3] [,4]
+[1,]   NA    0    0    0
+[2,]   NA   NA    0    0
+[3,]    0    0   NA    0
+[4,]   NA   NA    0   NA
+```
+
+### Personalizada 2 (comm exo, pib exo, cambio exo, ipca dep de comm e cambio)
 
 Gera magnitudes de IRFs grandes e significancia reduzida, especialmente em períodos mais longes. Resultados um pouco melhores para p > 5.
 
@@ -83,6 +93,11 @@ Gera magnitudes de IRFs grandes e significancia reduzida, especialmente em perí
 [3,]    0    0   NA    0
 [4,]   NA   NA    0   NA
 ```
+## Lambda Filtro HP
+
+### 192600 (Ravn e Uhlig) vs 14400 (HP)
+
+Um lambda de 192600 gera regimes mais suaves, enquanto o de 14400 gera alterações mais bruscas. No lambda de 192600, 2002-2005 representa só um re
 
 ## Resultados interessantes
 

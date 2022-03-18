@@ -1,50 +1,38 @@
 #### Carregando pacotes ####
+if(!require("pacman")) install.packages("pacman")
 
-library(AER)
-library('readxl') # Carrega dados do excel
-library('normtest') # Para testar normalidade dos res??duos
-library(xts) # Objeto xts
-library('dynlm') # Para dinamicos
-library(sandwich)
-library(urca)
-library(FinTS)
-library(purrr)
-library(seasonal)
-library(x13binary)
-library(smooth)
-library(forecast)
-library(tidyverse)
-library(zoo)
-library(vars)
-library(tseries)
-library(PerformanceAnalytics)
-library(quantmod)
-library(TTR)
-library(mFilter)
-library(cowplot)
-library(scales)
-library(RColorBrewer)
-library(tidyr)
-library(dplyr)
-library(tibble)
-library(ggplot2)
-library(car)
-library(AER)
-library(knitr)
-library(stargazer)
-library(broom)
-library(lmtest)
-library(stats)
-library(olsrr)
-library(sandwich)
-# library(lpirfs)
-library(data.table)
-library(here)
-# library(starvars)
-library(foreach)
-library(remotes)
-library(BETS)
+pkgs_list <- list('AER',
+               'readxl',
+               'xts',
+               'dynlm', 
+               'urca',
+               'FinTS',
+               'seasonal',
+               'x13binary',
+               'smooth',
+               'forecast',
+               'vars',
+               'tseries',
+               'TTR',
+               'mFilter',
+               'cowplot',
+               'scales',
+               'RColorBrewer',
+               'tidyr',
+               'dplyr',
+               'tibble',
+               'ggplot2',
+               'stargazer',
+               'stats',
+               'olsrr',
+               'here',
+               'remotes',
+               'stringr')
+
+
+pacman::p_load(pkgs_list, character.only = T)
 
 # Testing version of lpirfs package
-remotes::install_github("https://github.com/luanmugarte/lpirfs/tree/testing", ref = '09a332c82f7439dee315845e9b8ca430010576d3')
+remotes::install_github("https://github.com/luanmugarte/lpirfs/tree/testing",
+                        force = F)
 library(lpirfs)
