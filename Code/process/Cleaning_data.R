@@ -290,7 +290,7 @@ selic_defl <- deflateBR::deflate(selic,
 plot(selic_defl, type = 'l')
 
 # Criando série da taxa de juros
-selic_defl.hp_1 <- hpfilter(selic_defl, freq = 192600, type = 'lambda')
+selic_defl.hp <- hpfilter(selic_defl, freq = 192600, type = 'lambda')
 
 par(mfrow=c(1,1))
 taxa_juros <- (selic)-selic_defl.hp$trend

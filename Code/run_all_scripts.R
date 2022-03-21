@@ -8,7 +8,7 @@
 source(here::here('Code','functions','data_and_model_functions.R'))
 source(here::here('Code','functions','plot_functions.R'))
 
-# Loading packages and getting the data
+# Running main functions once
 raw_data <- load_packages_and_data()
 
 # Rodando modelo específico ####
@@ -31,7 +31,6 @@ contemp_effect = 0
 # Variável de demanda agregada (capacidade ou pimpf).
 # Caso o modelo seja trim, também podem ser (pib ou pib_hiato)
 DA_variable = 'pimpf'
-
 # Horizonte das LP's
 hor_lps <- 18
 
@@ -39,10 +38,11 @@ hor_lps <- 18
 gamma_transition <- 12
 
 # Lags das variáveis endógenas
-lag_endog = 4
+# Escolhido endogenamento pelo criterio HQ
+lag_endog <- 4
 
 # Lags das variáveis exógenas
-lag_exog = 1
+lag_exog <- 1
 
 # Variável de inflação externa
 ext_inflation = 'comm'
@@ -70,6 +70,13 @@ lambda_hp = 192600
 
 # Incluir taxa de juros
 include_interest_rate = T
+include_selic = F
+
+# NW Pre-white
+pre_white = F
+
+# Adjust Standard Erros
+adjust_se = F
 
 # Decomposição de Cholesky
 # chol_decomp = diag(as.character(NA), nrow = 5, ncol = 5)
@@ -77,7 +84,7 @@ include_interest_rate = T
 chol_decomp = NULL
 
 # Ordem das variáveis endógenas
-vars_order <- c(ext_inflation, 'cambio',DA_variable,inflation_index,'taxa_juros')
+vars_order <- c(ext_inflation, 'cambio',DA_variable,'taxa_juros',inflation_index)
 
 # Rodando função de estimação
 model_obj <- get_model_specification(raw_data)
@@ -92,3 +99,15 @@ results_lin <- model_results[[2]]
 export_figures(results_nl,results_lin,model_specs)
 
 VARselect(model_data$modelo_endo, lag.max = 12)
+
+
+# Gráficos --------
+
+# Função de transição
+plot_transition_function(results_nl,model_specs)
+
+# IRFs
+plot_IRFs(results_nl, model_specs)
+
+
+
