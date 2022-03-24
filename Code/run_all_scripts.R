@@ -95,11 +95,6 @@ model_results <- run_models(model_data,model_specs)
 results_nl <- model_results[[1]]
 results_lin <- model_results[[2]]
 
-# Exportando figures
-export_figures(results_nl,results_lin,model_specs)
-
-VARselect(model_data$modelo_endo, lag.max = 12)
-
 
 # Gráficos --------
 
@@ -107,7 +102,8 @@ VARselect(model_data$modelo_endo, lag.max = 12)
 plot_transition_function(results_nl,model_specs)
 
 # IRFs
-plot_IRFs(results_nl, model_specs)
+plot_IRFs(results_lin, results_nl, model_specs)
 
-
+# ERPT - Belaisch
+plot_Belaisch_ERPT(results_lin, results_nl, model_specs)
 
