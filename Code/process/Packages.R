@@ -1,7 +1,10 @@
 #### Carregando pacotes ####
 if(!require("pacman")) install.packages("pacman")
 
-pkgs_list <- list('AER',
+# Testing version of lpirfs package
+remotes::install_github("https://github.com/luanmugarte/lpirfs/tree/testing",
+                        force = F)
+pkgs_list <- c('AER',
                'readxl',
                'xts',
                'dynlm', 
@@ -27,12 +30,9 @@ pkgs_list <- list('AER',
                'olsrr',
                'here',
                'remotes',
-               'stringr')
+               'stringr',
+               'lpirfs')
 
 
 pacman::p_load(pkgs_list, character.only = T)
 
-# Testing version of lpirfs package
-remotes::install_github("https://github.com/luanmugarte/lpirfs/tree/testing",
-                        force = F)
-library(lpirfs)
