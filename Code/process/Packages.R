@@ -31,7 +31,9 @@ pkgs_list <- c('AER',
                'here',
                'remotes',
                'stringr',
-               'lpirfs')
+               'lpirfs',
+               'rbcb',
+               'foreach')
 
 
 pacman::p_load(pkgs_list, character.only = T)

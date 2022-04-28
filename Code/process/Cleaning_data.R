@@ -172,6 +172,37 @@ plot(diff(log(ipcaindice)))
 
 ipca <- ipcadessaz
 
+# igp
+igp
+monthplot(igp)
+seas_igp <- seas(x = igp)
+summary(seas_igp)
+
+seasonal::qs(seas_igp)
+
+igpdessaz <- series(seas_igp, "s11")
+par(mfrow=c(2,1))
+plot(igpdessaz)
+plot(igp)
+
+igp <- igpdessaz
+
+
+# ipa
+ipa
+monthplot(ipa)
+seas_ipa <- seas(x = ipa)
+summary(seas_ipa)
+
+seasonal::qs(seas_ipa)
+
+ipadessaz <- series(seas_ipa, "s11")
+par(mfrow=c(2,1))
+plot(ipadessaz)
+plot(ipa)
+
+ipa <- ipadessaz
+
 # Commodities
 
 monthplot(comm)
@@ -296,7 +327,8 @@ par(mfrow=c(1,1))
 taxa_juros <- (selic)-selic_defl.hp$trend
 plot(taxa_juros)
 
-
+plot(selic_defl.hp$trend)
+?deflateBR::deflate
 
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$##
 #                                                                     #

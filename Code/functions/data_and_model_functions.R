@@ -34,9 +34,58 @@ get_model_specification <- function(raw_data) {
   # also builds the naming convention for output figures directories.
   dados <- raw_data
   
+  # Robustness check ####
+  
+  # General specification
+  
+  # Include trend in the model
+  model_trend = 0
+  
+  # Efeito contemporâneo presente (1) ou ausente  (0) da variável exógena
+  contemp_effect = 0
+  
+  # Lags da variável de transição
+  lag_switch_variable = T
+  
+  # Frequência (mensal ou trim)
+  model_frequency = 'mensal'
+  
+  # Horizonte das LP's
+  hor_lps <- 18
+  
+  # Intervalo de confiança das IRFs
+  sig_IC = 95
+  
+  # Inflação externa endógena 
+  comm_endo = T
+  
+  # Lags das variáveis exógenas
+  lag_exog = 1
+  
+  # Outras escolhas #
+  
+  # Incluir dummy da GFC
+  include_gfc_dummy = F
+  
+  # Taxa de desemprego no modelo
+  desemprego_on = F
+  
+  # Taxa de Desemprego em variação percentual
+  desemprego_diff = F
+  
+  # Taxa de desemprego como variável exógena (mais apropriado para comparação de índices de inflação)
+  desemprego_exog = F
+  
+  # NW Pre-white
+  pre_white = F
+  
+  # Adjust Standard Erros
+  adjust_se = F
+  
+  
   if ( model_frequency == 'mensal'){
     date <- seq(2000,2020.23,1/12)
-    # lambda_hp = 129600
+    # lambda_hp = 192600
   } else   {
     date <- seq(2000.26,2019.99,1/4)
     lambda_hp = 1600
@@ -200,7 +249,7 @@ get_model_specification <- function(raw_data) {
   
   if (comm_endo == T) {
     nome_modelo = paste0('endo[',str_flatten(vars_order,collapse = '_') %>%
-                           str_replace_all(c('_cambio' = '', '_ipca' = '')),
+                           str_replace_all(c('_cambio' = '')),
                          paste0('(',as.character(lag_endog),')]'),
                          paste0('_gamma[',as.character(gamma_transition),']'),
                          lambda_hp,
@@ -252,7 +301,9 @@ get_model_specification <- function(raw_data) {
                       endo_variables      = endo_variables,
                       response            = response,
                       cambio_shock        = cambio_shock,
-                      vars_order          = vars_order
+                      vars_order          = vars_order,
+                      pre_white           = pre_white,
+                      adjust_se           = adjust_se
                   
                       )
     
@@ -286,8 +337,8 @@ run_models <- function(data,specs){
     contemp_data = specs$contemp_effect_lp, # Variáveis exógenas com efeito contemporâneo
     exog_data = data$modelo_exog, # Variáveis exógenas com efeitos defasados
     lags_exog = specs$lag_exog, # Lags das variáveis exógenas
-    nw_prewhite = pre_white,
-    adjust_se = adjust_se,
+    nw_prewhite = specs$pre_white,
+    adjust_se = specs$adjust_se,
     chol_decomp = specs$chol_decomp
   )
   
@@ -303,8 +354,8 @@ run_models <- function(data,specs){
     contemp_data = specs$contemp_effect_lp, # Variáveis exógenas com efeito contemporâneo
     exog_data = data$modelo_exog, # Variáveis exógenas com efeitos defasados
     lags_exog = specs$lag_exog, # Lags das variáveis exógenas
-    nw_prewhite = pre_white,
-    adjust_se = adjust_se,
+    nw_prewhite = specs$pre_white,
+    adjust_se = specs$adjust_se,
     chol_decomp = specs$chol_decomp
   )
   

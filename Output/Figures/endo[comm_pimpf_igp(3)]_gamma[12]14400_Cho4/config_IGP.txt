@@ -1,0 +1,28 @@
+
+===================================
+                        config_list
+-----------------------------------
+model_frequency           mensal   
+DA_variable                pimpf   
+comm_endo                  TRUE    
+inflation_index             igp    
+model_trend                  0     
+lag_endog                    3     
+ext_inflation              comm    
+lag_switch_variable        TRUE    
+gamma_transition            12     
+include_gfc_dummy          FALSE   
+desemprego_on              FALSE   
+desemprego_diff            FALSE   
+desemprego_exog            FALSE   
+hor_lps                     18     
+lambda_hp                  14400   
+nw_prewhite                FALSE   
+adjust_se                  FALSE   
+chol_decomp.dimensions1      4     
+chol_decomp.dimensions2      4     
+vars_order1                comm    
+vars_order2               cambio   
+vars_order3                pimpf   
+vars_order4                 igp    
+-----------------------------------
